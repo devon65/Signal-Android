@@ -7,7 +7,9 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
+
+import org.thoughtcrime.securesms.jobmanager.SafeData;
+import org.thoughtcrime.securesms.logging.Log;
 import android.util.Pair;
 
 import org.thoughtcrime.securesms.ApplicationContext;
@@ -46,6 +48,7 @@ import org.thoughtcrime.securesms.mms.OutgoingSecureMediaMessage;
 import org.thoughtcrime.securesms.mms.QuoteModel;
 import org.thoughtcrime.securesms.mms.SlideDeck;
 import org.thoughtcrime.securesms.notifications.MessageNotifier;
+import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.service.WebRtcCallService;
 import org.thoughtcrime.securesms.sms.IncomingEncryptedMessage;
@@ -97,7 +100,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+
+import androidx.work.Data;
 
 public class PushDecryptJob extends ContextJob {
 
@@ -105,8 +109,19 @@ public class PushDecryptJob extends ContextJob {
 
   public static final String TAG = PushDecryptJob.class.getSimpleName();
 
-  private final long messageId;
-  private final long smsMessageId;
+  private static final String KEY_MESSAGE_ID     = "message_id";
+  private static final String KEY_SMS_MESSAGE_ID = "sms_message_id";
+
+  private long messageId;
+  private long smsMessageId;
+
+  public PushDecryptJob() {
+    super(null, null);
+  }
+
+  public PushDecryptJob(Context context) {
+    this(context, -1);
+  }
 
   public PushDecryptJob(Context context, long pushMessageId) {
     this(context, pushMessageId, -1);
@@ -114,45 +129,41 @@ public class PushDecryptJob extends ContextJob {
 
   public PushDecryptJob(Context context, long pushMessageId, long smsMessageId) {
     super(context, JobParameters.newBuilder()
-                                .withPersistence()
                                 .withGroupId("__PUSH_DECRYPT_JOB__")
-                                .withWakeLock(true, 5, TimeUnit.SECONDS)
                                 .create());
     this.messageId    = pushMessageId;
     this.smsMessageId = smsMessageId;
   }
 
   @Override
-  public void onAdded() {}
+  protected void initialize(@NonNull SafeData data) {
+    messageId    = data.getLong(KEY_MESSAGE_ID);
+    smsMessageId = data.getLong(KEY_SMS_MESSAGE_ID);
+  }
+
+  @Override
+  protected @NonNull Data serialize(@NonNull Data.Builder dataBuilder) {
+    return dataBuilder.putLong(KEY_MESSAGE_ID, messageId)
+                      .putLong(KEY_SMS_MESSAGE_ID, smsMessageId)
+                      .build();
+  }
 
   @Override
   public void onRun() throws NoSuchMessageException {
-    if (!IdentityKeyUtil.hasIdentityKey(context)) {
-      Log.w(TAG, "Skipping job, waiting for migration...");
-      return;
+    synchronized (PushReceivedJob.RECEIVE_LOCK) {
+      if (needsMigration()) {
+        Log.w(TAG, "Skipping, waiting for migration...");
+        postMigrationNotification();
+        return;
+      }
+
+      PushDatabase          database             = DatabaseFactory.getPushDatabase(context);
+      SignalServiceEnvelope envelope             = database.get(messageId);
+      Optional<Long>        optionalSmsMessageId = smsMessageId > 0 ? Optional.of(smsMessageId) : Optional.absent();
+
+      handleMessage(envelope, optionalSmsMessageId);
+      database.delete(messageId);
     }
-
-    if (TextSecurePreferences.getNeedsSqlCipherMigration(context)) {
-      Log.w(TAG, "Skipping job, waiting for sqlcipher migration...");
-      NotificationManagerCompat.from(context).notify(494949,
-                                                     new NotificationCompat.Builder(context)
-                                                         .setSmallIcon(R.drawable.icon_notification)
-                                                         .setPriority(NotificationCompat.PRIORITY_HIGH)
-                                                         .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                                                         .setContentTitle(context.getString(R.string.PushDecryptJob_new_locked_message))
-                                                         .setContentText(context.getString(R.string.PushDecryptJob_unlock_to_view_pending_messages))
-                                                         .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, ConversationListActivity.class), 0))
-                                                         .setDefaults(NotificationCompat.DEFAULT_SOUND | NotificationCompat.DEFAULT_VIBRATE)
-                                                         .build());
-      return;
-    }
-
-    PushDatabase          database             = DatabaseFactory.getPushDatabase(context);
-    SignalServiceEnvelope envelope             = database.get(messageId);
-    Optional<Long>        optionalSmsMessageId = smsMessageId > 0 ? Optional.of(smsMessageId) : Optional.absent();
-
-    handleMessage(envelope, optionalSmsMessageId);
-    database.delete(messageId);
   }
 
   @Override
@@ -165,7 +176,38 @@ public class PushDecryptJob extends ContextJob {
 
   }
 
-  private void handleMessage(SignalServiceEnvelope envelope, Optional<Long> smsMessageId) {
+  public void processMessage(@NonNull SignalServiceEnvelope envelope) {
+    synchronized (PushReceivedJob.RECEIVE_LOCK) {
+      if (needsMigration()) {
+        Log.w(TAG, "Skipping and storing envelope, waiting for migration...");
+        DatabaseFactory.getPushDatabase(context).insert(envelope);
+        postMigrationNotification();
+        return;
+      }
+
+      handleMessage(envelope, Optional.absent());
+    }
+  }
+
+  private boolean needsMigration() {
+    return !IdentityKeyUtil.hasIdentityKey(context) || TextSecurePreferences.getNeedsSqlCipherMigration(context);
+  }
+
+  private void postMigrationNotification() {
+    NotificationManagerCompat.from(context).notify(494949,
+                                                   new NotificationCompat.Builder(context, NotificationChannels.getMessagesChannel(context))
+                                                                         .setSmallIcon(R.drawable.icon_notification)
+                                                                         .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                                                         .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                                                                         .setContentTitle(context.getString(R.string.PushDecryptJob_new_locked_message))
+                                                                         .setContentText(context.getString(R.string.PushDecryptJob_unlock_to_view_pending_messages))
+                                                                         .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, ConversationListActivity.class), 0))
+                                                                         .setDefaults(NotificationCompat.DEFAULT_SOUND | NotificationCompat.DEFAULT_VIBRATE)
+                                                                         .build());
+
+  }
+
+  private void handleMessage(@NonNull SignalServiceEnvelope envelope, @NonNull Optional<Long> smsMessageId) {
     try {
       GroupDatabase        groupDatabase = DatabaseFactory.getGroupDatabase(context);
       SignalProtocolStore  axolotlStore  = new SignalProtocolStoreImpl(context);
@@ -173,6 +215,11 @@ public class PushDecryptJob extends ContextJob {
       SignalServiceCipher  cipher        = new SignalServiceCipher(localAddress, axolotlStore);
 
       SignalServiceContent content = cipher.decrypt(envelope);
+
+      if (shouldIgnore(envelope, content)) {
+        Log.i(TAG, "Ignoring message.");
+        return;
+      }
 
       if (content.getDataMessage().isPresent()) {
         SignalServiceDataMessage message        = content.getDataMessage().get();
@@ -200,7 +247,7 @@ public class PushDecryptJob extends ContextJob {
         else if (syncMessage.getVerified().isPresent()) handleSynchronizeVerifiedMessage(syncMessage.getVerified().get());
         else                                           Log.w(TAG, "Contains no known sync types...");
       } else if (content.getCallMessage().isPresent()) {
-        Log.w(TAG, "Got call message...");
+        Log.i(TAG, "Got call message...");
         SignalServiceCallMessage message = content.getCallMessage().get();
 
         if      (message.getOfferMessage().isPresent())      handleCallOfferMessage(envelope, message.getOfferMessage().get(), smsMessageId);
@@ -266,7 +313,7 @@ public class PushDecryptJob extends ContextJob {
   private void handleCallAnswerMessage(@NonNull SignalServiceEnvelope envelope,
                                        @NonNull AnswerMessage message)
   {
-    Log.w(TAG, "handleCallAnswerMessage...");
+    Log.i(TAG, "handleCallAnswerMessage...");
     Intent intent = new Intent(context, WebRtcCallService.class);
     intent.setAction(WebRtcCallService.ACTION_RESPONSE_MESSAGE);
     intent.putExtra(WebRtcCallService.EXTRA_CALL_ID, message.getId());
@@ -297,7 +344,7 @@ public class PushDecryptJob extends ContextJob {
                                        @NonNull HangupMessage message,
                                        @NonNull Optional<Long> smsMessageId)
   {
-    Log.w(TAG, "handleCallHangupMessage");
+    Log.i(TAG, "handleCallHangupMessage");
     if (smsMessageId.isPresent()) {
       DatabaseFactory.getSmsDatabase(context).markAsMissedCall(smsMessageId.get());
     } else {
@@ -479,7 +526,7 @@ public class PushDecryptJob extends ContextJob {
     if (message.isContactsRequest()) {
       ApplicationContext.getInstance(context)
                         .getJobManager()
-                        .add(new MultiDeviceContactUpdateJob(getContext()));
+                        .add(new MultiDeviceContactUpdateJob(getContext(), true));
     }
 
     if (message.isGroupsRequest()) {
@@ -680,12 +727,13 @@ public class PushDecryptJob extends ContextJob {
       handleSynchronizeSentExpirationUpdate(message);
     }
 
-    long threadId  = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(recipient);
+    long    threadId  = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(recipient);
+    boolean isGroup   = recipient.getAddress().isGroup();
 
     MessagingDatabase database;
     long              messageId;
 
-    if (recipient.getAddress().isGroup()) {
+    if (isGroup) {
       OutgoingMediaMessage outgoingMediaMessage = new OutgoingMediaMessage(recipient, new SlideDeck(), body, message.getTimestamp(), -1, expiresInMillis, ThreadDatabase.DistributionTypes.DEFAULT, null, Collections.emptyList());
       outgoingMediaMessage = new OutgoingSecureMediaMessage(outgoingMediaMessage);
 
@@ -704,7 +752,7 @@ public class PushDecryptJob extends ContextJob {
       database.markExpireStarted(messageId, message.getExpirationStartTimestamp());
       ApplicationContext.getInstance(context)
                         .getExpiringMessageManager()
-                        .scheduleDeletion(messageId, false, message.getExpirationStartTimestamp(), expiresInMillis);
+                        .scheduleDeletion(messageId, isGroup, message.getExpirationStartTimestamp(), expiresInMillis);
     }
 
     return threadId;
@@ -845,7 +893,7 @@ public class PushDecryptJob extends ContextJob {
                                      @NonNull SignalServiceReceiptMessage message)
   {
     for (long timestamp : message.getTimestamps()) {
-      Log.w(TAG, String.format("Received encrypted delivery receipt: (XXXXX, %d)", timestamp));
+      Log.i(TAG, String.format("Received encrypted delivery receipt: (XXXXX, %d)", timestamp));
       DatabaseFactory.getMmsSmsDatabase(context)
                      .incrementDeliveryReceiptCount(new SyncMessageId(Address.fromExternal(context, envelope.getSource()), timestamp), System.currentTimeMillis());
     }
@@ -856,7 +904,7 @@ public class PushDecryptJob extends ContextJob {
   {
     if (TextSecurePreferences.isReadReceiptsEnabled(context)) {
       for (long timestamp : message.getTimestamps()) {
-        Log.w(TAG, String.format("Received encrypted read receipt: (XXXXX, %d)", timestamp));
+        Log.i(TAG, String.format("Received encrypted read receipt: (XXXXX, %d)", timestamp));
 
         DatabaseFactory.getMmsSmsDatabase(context)
                        .incrementReadReceiptCount(new SyncMessageId(Address.fromExternal(context, envelope.getSource()), timestamp), envelope.getTimestamp());
@@ -881,7 +929,7 @@ public class PushDecryptJob extends ContextJob {
     MessageRecord message = DatabaseFactory.getMmsSmsDatabase(context).getMessageFor(quote.get().getId(), author);
 
     if (message != null) {
-      Log.w(TAG, "Found matching message record...");
+      Log.i(TAG, "Found matching message record...");
 
       List<Attachment> attachments = new LinkedList<>();
 
@@ -889,13 +937,14 @@ public class PushDecryptJob extends ContextJob {
         attachments = ((MmsMessageRecord) message).getSlideDeck().asAttachments();
       }
 
-      return Optional.of(new QuoteModel(quote.get().getId(), author, quote.get().getText(), attachments));
+      return Optional.of(new QuoteModel(quote.get().getId(), author, message.getBody(), false, attachments));
     }
 
     Log.w(TAG, "Didn't find matching message record...");
     return Optional.of(new QuoteModel(quote.get().getId(),
                                       author,
                                       quote.get().getText(),
+                                      true,
                                       PointerAttachment.forPointers(quote.get().getAttachments())));
   }
 
@@ -937,5 +986,41 @@ public class PushDecryptJob extends ContextJob {
     } else {
       return Recipient.from(context, Address.fromExternal(context, envelope.getSource()), false);
     }
+  }
+
+  private boolean shouldIgnore(@NonNull SignalServiceEnvelope envelope, @NonNull SignalServiceContent content) {
+    Recipient sender = Recipient.from(context, Address.fromExternal(context, envelope.getSource()), false);
+
+    if (content.getDataMessage().isPresent()) {
+      SignalServiceDataMessage message      = content.getDataMessage().get();
+      Recipient                conversation = getMessageDestination(envelope, message);
+
+      if (conversation.isGroupRecipient() && conversation.isBlocked()) {
+        return true;
+      } else if (conversation.isGroupRecipient()) {
+        GroupDatabase    groupDatabase = DatabaseFactory.getGroupDatabase(context);
+        Optional<String> groupId       = message.getGroupInfo().isPresent() ? Optional.of(GroupUtil.getEncodedId(message.getGroupInfo().get().getGroupId(), false))
+                                                                            : Optional.absent();
+
+        if (groupId.isPresent() && groupDatabase.isUnknownGroup(groupId.get())) {
+          return false;
+        }
+
+        boolean isTextMessage    = message.getBody().isPresent();
+        boolean isMediaMessage   = message.getAttachments().isPresent() || message.getQuote().isPresent() || message.getSharedContacts().isPresent();
+        boolean isExpireMessage  = message.isExpirationUpdate();
+        boolean isContentMessage = !message.isGroupUpdate() && (isTextMessage || isMediaMessage || isExpireMessage);
+        boolean isGroupActive    = groupId.isPresent() && groupDatabase.isActive(groupId.get());
+        boolean isLeaveMessage   = message.getGroupInfo().isPresent() && message.getGroupInfo().get().getType() == SignalServiceGroup.Type.QUIT;
+
+        return (isContentMessage && !isGroupActive) || (sender.isBlocked() && !isLeaveMessage);
+      } else {
+        return sender.isBlocked();
+      }
+    } else if (content.getCallMessage().isPresent()) {
+      return sender.isBlocked();
+    }
+
+    return false;
   }
 }

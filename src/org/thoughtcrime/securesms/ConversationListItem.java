@@ -50,6 +50,7 @@ import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientModifiedListener;
 import org.thoughtcrime.securesms.search.model.MessageResult;
 import org.thoughtcrime.securesms.util.DateUtils;
+import org.thoughtcrime.securesms.util.ThemeUtil;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.ViewUtil;
 
@@ -67,8 +68,8 @@ public class ConversationListItem extends RelativeLayout
   @SuppressWarnings("unused")
   private final static String TAG = ConversationListItem.class.getSimpleName();
 
-  private final static Typeface  BOLD_TYPEFACE  = Typeface.create("sans-serif", Typeface.BOLD);
-  private final static Typeface  LIGHT_TYPEFACE = Typeface.create("sans-serif-light", Typeface.NORMAL);
+  private final static Typeface  BOLD_TYPEFACE  = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+  private final static Typeface  LIGHT_TYPEFACE = Typeface.create("sans-serif", Typeface.NORMAL);
 
   private Set<Long>          selectedThreads;
   private Recipient          recipient;
@@ -80,7 +81,7 @@ public class ConversationListItem extends RelativeLayout
   private TextView           archivedView;
   private DeliveryStatusView deliveryStatusIndicator;
   private AlertView          alertView;
-  private ImageView          unreadIndicator;
+  private TextView           unreadIndicator;
   private long               lastSeen;
 
   private int             unreadCount;
@@ -148,12 +149,16 @@ public class ConversationListItem extends RelativeLayout
     }
 
     this.subjectView.setText(thread.getDisplayBody());
-//    this.subjectView.setTypeface(read ? LIGHT_TYPEFACE : BOLD_TYPEFACE);
+    this.subjectView.setTypeface(unreadCount == 0 ? LIGHT_TYPEFACE : BOLD_TYPEFACE);
+    this.subjectView.setTextColor(unreadCount == 0 ? ThemeUtil.getThemedColor(getContext(), R.attr.conversation_list_item_subject_color)
+                                                   : ThemeUtil.getThemedColor(getContext(), R.attr.conversation_list_item_unread_color));
 
     if (thread.getDate() > 0) {
       CharSequence date = DateUtils.getBriefRelativeTimeSpanString(getContext(), locale, thread.getDate());
-      dateView.setText(unreadCount == 0 ? date : color(getResources().getColor(R.color.textsecure_primary_dark), date));
+      dateView.setText(date);
       dateView.setTypeface(unreadCount == 0 ? LIGHT_TYPEFACE : BOLD_TYPEFACE);
+      dateView.setTextColor(unreadCount == 0 ? ThemeUtil.getThemedColor(getContext(), R.attr.conversation_list_item_date_color)
+                                             : ThemeUtil.getThemedColor(getContext(), R.attr.conversation_list_item_unread_color));
     }
 
     if (thread.isArchived()) {
@@ -306,14 +311,7 @@ public class ConversationListItem extends RelativeLayout
       return;
     }
 
-    unreadIndicator.setImageDrawable(TextDrawable.builder()
-                                                 .beginConfig()
-                                                 .width(ViewUtil.dpToPx(getContext(), 24))
-                                                 .height(ViewUtil.dpToPx(getContext(), 24))
-                                                 .textColor(Color.WHITE)
-                                                 .bold()
-                                                 .endConfig()
-                                                 .buildRound(String.valueOf(thread.getUnreadCount()), getResources().getColor(R.color.textsecure_primary_dark)));
+    unreadIndicator.setText(String.valueOf(unreadCount));
     unreadIndicator.setVisibility(View.VISIBLE);
   }
 

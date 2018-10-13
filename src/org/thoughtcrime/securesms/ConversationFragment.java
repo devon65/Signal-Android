@@ -39,7 +39,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.text.ClipboardManager;
 import android.text.TextUtils;
-import android.util.Log;
+import org.thoughtcrime.securesms.logging.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -190,6 +190,21 @@ public class ConversationFragment extends Fragment
     getLoaderManager().restartLoader(0, Bundle.EMPTY, this);
   }
 
+  public void moveToLastSeen() {
+    if (lastSeen <= 0) {
+      Log.i(TAG, "No need to move to last seen.");
+      return;
+    }
+
+    if (list == null || getListAdapter() == null) {
+      Log.w(TAG, "Tried to move to last seen position, but we hadn't initialized the view yet.");
+      return;
+    }
+
+    int position = getListAdapter().findLastSeenPosition(lastSeen);
+    scrollToLastSeenPosition(position);
+  }
+
   private void initializeResources() {
     this.recipient         = Recipient.from(getActivity(), getActivity().getIntent().getParcelableExtra(ConversationActivity.ADDRESS_EXTRA), true);
     this.threadId          = this.getActivity().getIntent().getLongExtra(ConversationActivity.THREAD_ID_EXTRA, -1);
@@ -227,6 +242,7 @@ public class ConversationFragment extends Fragment
     Set<MessageRecord> messageRecords = getListAdapter().getSelectedItems();
     boolean            actionMessage  = false;
     boolean            hasText        = false;
+    boolean            sharedContact  = false;
 
     if (actionMode != null && messageRecords.size() == 0) {
       actionMode.finish();
@@ -241,11 +257,13 @@ public class ConversationFragment extends Fragment
       {
         actionMessage = true;
       }
+
       if (messageRecord.getBody().length() > 0) {
         hasText = true;
       }
-      if (actionMessage && hasText) {
-        break;
+
+      if (messageRecord.isMms() && !((MmsMessageRecord) messageRecord).getSharedContacts().isEmpty()) {
+        sharedContact = true;
       }
     }
 
@@ -264,7 +282,7 @@ public class ConversationFragment extends Fragment
                                                                   !messageRecord.isMmsNotification() &&
                                                                   ((MediaMmsMessageRecord)messageRecord).containsMediaSlide());
 
-      menu.findItem(R.id.menu_context_forward).setVisible(!actionMessage);
+      menu.findItem(R.id.menu_context_forward).setVisible(!actionMessage && !sharedContact);
       menu.findItem(R.id.menu_context_details).setVisible(!actionMessage);
       menu.findItem(R.id.menu_context_reply).setVisible(!actionMessage             &&
                                                         !messageRecord.isPending() &&
@@ -399,7 +417,7 @@ public class ConversationFragment extends Fragment
     Intent composeIntent = new Intent(getActivity(), ShareActivity.class);
     composeIntent.putExtra(Intent.EXTRA_TEXT, message.getDisplayBody().toString());
     if (message.isMms()) {
-      MediaMmsMessageRecord mediaMessage = (MediaMmsMessageRecord) message;
+      MmsMessageRecord mediaMessage = (MmsMessageRecord) message;
       if (mediaMessage.containsMediaSlide()) {
         Slide slide = mediaMessage.getSlideDeck().getSlides().get(0);
         composeIntent.putExtra(Intent.EXTRA_STREAM, slide.getUri());
@@ -445,12 +463,12 @@ public class ConversationFragment extends Fragment
 
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    Log.w(TAG, "onCreateLoader");
+    Log.i(TAG, "onCreateLoader");
     loaderStartTime = System.currentTimeMillis();
 
     int limit  = args.getInt(KEY_LIMIT, PARTIAL_CONVERSATION_LIMIT);
     int offset = 0;
-    if (limit != 0 && startingPosition > limit) {
+    if (limit != 0 && startingPosition >= limit) {
       offset = Math.max(startingPosition - (limit / 2) + 1, 0);
       startingPosition -= offset - 1;
     }
@@ -462,7 +480,7 @@ public class ConversationFragment extends Fragment
   public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
     long loadTime = System.currentTimeMillis() - loaderStartTime;
     int  count    = cursor.getCount();
-    Log.w(TAG, "onLoadFinished - took " + loadTime + " ms to load a cursor of size " + count);
+    Log.i(TAG, "onLoadFinished - took " + loadTime + " ms to load a cursor of size " + count);
     ConversationLoader loader = (ConversationLoader)cursorLoader;
 
     ConversationAdapter adapter = getListAdapter();
@@ -686,6 +704,12 @@ public class ConversationFragment extends Fragment
         return;
       }
 
+      if (messageRecord.getQuote().isOriginalMissing()) {
+        Log.i(TAG, "Clicked on a quote whose original message we never had.");
+        Toast.makeText(getContext(), R.string.ConversationFragment_quoted_message_not_found, Toast.LENGTH_SHORT).show();
+        return;
+      }
+
       new AsyncTask<Void, Void, Integer>() {
         @Override
         protected Integer doInBackground(Void... voids) {
@@ -696,8 +720,7 @@ public class ConversationFragment extends Fragment
           return DatabaseFactory.getMmsSmsDatabase(getContext())
                                 .getQuotedMessagePosition(threadId,
                                                           messageRecord.getQuote().getId(),
-                                                          messageRecord.getQuote().getAuthor(),
-                                                          getListAdapter().getItemCount());
+                                                          messageRecord.getQuote().getAuthor());
         }
 
         @Override
@@ -710,13 +733,15 @@ public class ConversationFragment extends Fragment
           if (position >= 0 && position < getListAdapter().getItemCount()) {
             list.scrollToPosition(position);
             getListAdapter().pulseHighlightItem(position);
+          } else if (position < 0) {
+            Log.w(TAG, "Tried to navigate to quoted message, but it was deleted.");
+            Toast.makeText(getContext(), R.string.ConversationFragment_quoted_message_no_longer_available, Toast.LENGTH_SHORT).show();
           } else {
-            Toast.makeText(getContext(), getResources().getText(R.string.ConversationFragment_quoted_message_not_found), Toast.LENGTH_SHORT).show();
-            if (position < 0) {
-              Log.w(TAG, "Tried to navigate to quoted message, but it was deleted.");
-            } else {
-              Log.w(TAG, "Tried to navigate to quoted message, but it was out of the bounds of the adapter.");
-            }
+            Log.i(TAG, "Quoted message was outside of the loaded range. Need to restart the loader.");
+
+            firstLoad        = true;
+            startingPosition = position;
+            getLoaderManager().restartLoader(0, Bundle.EMPTY, ConversationFragment.this);
           }
         }
       }.execute();

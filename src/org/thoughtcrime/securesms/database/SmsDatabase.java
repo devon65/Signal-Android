@@ -22,7 +22,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
+import org.thoughtcrime.securesms.logging.Log;
 import android.util.Pair;
 
 import com.annimon.stream.Stream;
@@ -117,7 +117,7 @@ public class SmsDatabase extends MessagingDatabase {
   }
 
   private void updateTypeBitmask(long id, long maskOff, long maskOn) {
-    Log.w("MessageDatabase", "Updating ID: " + id + " to base type: " + maskOn);
+    Log.i("MessageDatabase", "Updating ID: " + id + " to base type: " + maskOn);
 
     SQLiteDatabase db = databaseHelper.getWritableDatabase();
     db.execSQL("UPDATE " + TABLE_NAME +
@@ -263,7 +263,7 @@ public class SmsDatabase extends MessagingDatabase {
   }
 
   public void markStatus(long id, int status) {
-    Log.w("MessageDatabase", "Updating ID: " + id + " to status: " + status);
+    Log.i("MessageDatabase", "Updating ID: " + id + " to status: " + status);
     ContentValues contentValues = new ContentValues();
     contentValues.put(STATUS, status);
 
@@ -330,13 +330,13 @@ public class SmsDatabase extends MessagingDatabase {
     }
   }
 
-  public List<Pair<Long, Long>> setTimestampRead(SyncMessageId messageId, long expireStarted) {
+  public List<Pair<Long, Long>> setTimestampRead(SyncMessageId messageId, long proposedExpireStarted) {
     SQLiteDatabase         database = databaseHelper.getWritableDatabase();
     List<Pair<Long, Long>> expiring = new LinkedList<>();
     Cursor                 cursor   = null;
 
     try {
-      cursor = database.query(TABLE_NAME, new String[] {ID, THREAD_ID, ADDRESS, TYPE, EXPIRES_IN},
+      cursor = database.query(TABLE_NAME, new String[] {ID, THREAD_ID, ADDRESS, TYPE, EXPIRES_IN, EXPIRE_STARTED},
                               DATE_SENT + " = ?", new String[] {String.valueOf(messageId.getTimetamp())},
                               null, null, null, null);
 
@@ -345,9 +345,12 @@ public class SmsDatabase extends MessagingDatabase {
         Address ourAddress   = Address.fromSerialized(cursor.getString(cursor.getColumnIndexOrThrow(ADDRESS)));
 
         if (ourAddress.equals(theirAddress)) {
-          long id        = cursor.getLong(cursor.getColumnIndexOrThrow(ID));
-          long threadId  = cursor.getLong(cursor.getColumnIndexOrThrow(THREAD_ID));
-          long expiresIn = cursor.getLong(cursor.getColumnIndexOrThrow(EXPIRES_IN));
+          long id            = cursor.getLong(cursor.getColumnIndexOrThrow(ID));
+          long threadId      = cursor.getLong(cursor.getColumnIndexOrThrow(THREAD_ID));
+          long expiresIn     = cursor.getLong(cursor.getColumnIndexOrThrow(EXPIRES_IN));
+          long expireStarted = cursor.getLong(cursor.getColumnIndexOrThrow(EXPIRE_STARTED));
+
+          expireStarted = expireStarted > 0 ? Math.min(proposedExpireStarted, expireStarted) : proposedExpireStarted;
 
           ContentValues contentValues = new ContentValues();
           contentValues.put(READ, 1);
@@ -687,7 +690,7 @@ public class SmsDatabase extends MessagingDatabase {
   }
 
   public boolean deleteMessage(long messageId) {
-    Log.w("MessageDatabase", "Deleting: " + messageId);
+    Log.i("MessageDatabase", "Deleting: " + messageId);
     SQLiteDatabase db = databaseHelper.getWritableDatabase();
     long threadId     = getThreadIdForMessage(messageId);
     db.delete(TABLE_NAME, ID_WHERE, new String[] {messageId+""});

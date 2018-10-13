@@ -1,7 +1,9 @@
 package org.thoughtcrime.securesms.dependencies;
 
 import android.content.Context;
-import android.util.Log;
+
+import org.thoughtcrime.securesms.gcm.GcmBroadcastReceiver;
+import org.thoughtcrime.securesms.logging.Log;
 
 import org.greenrobot.eventbus.EventBus;
 import org.thoughtcrime.securesms.BuildConfig;
@@ -34,7 +36,6 @@ import org.thoughtcrime.securesms.jobs.RetrieveProfileJob;
 import org.thoughtcrime.securesms.jobs.RotateSignedPreKeyJob;
 import org.thoughtcrime.securesms.jobs.SendReadReceiptJob;
 import org.thoughtcrime.securesms.preferences.AppProtectionPreferenceFragment;
-import org.thoughtcrime.securesms.preferences.SmsMmsPreferenceFragment;
 import org.thoughtcrime.securesms.push.SecurityEventListener;
 import org.thoughtcrime.securesms.push.SignalServiceNetworkAccess;
 import org.thoughtcrime.securesms.service.MessageRetrievalService;
@@ -45,6 +46,9 @@ import org.whispersystems.signalservice.api.SignalServiceAccountManager;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
 import org.whispersystems.signalservice.api.SignalServiceMessageSender;
 import org.whispersystems.signalservice.api.util.CredentialsProvider;
+import org.whispersystems.signalservice.api.util.RealtimeSleepTimer;
+import org.whispersystems.signalservice.api.util.SleepTimer;
+import org.whispersystems.signalservice.api.util.UptimeSleepTimer;
 import org.whispersystems.signalservice.api.websocket.ConnectivityListener;
 
 import dagger.Module;
@@ -78,7 +82,8 @@ import dagger.Provides;
                                      MultiDeviceProfileKeyUpdateJob.class,
                                      SendReadReceiptJob.class,
                                      MultiDeviceReadReceiptUpdateJob.class,
-                                     AppProtectionPreferenceFragment.class})
+                                     AppProtectionPreferenceFragment.class,
+                                     GcmBroadcastReceiver.class})
 public class SignalCommunicationModule {
 
   private static final String TAG = SignalCommunicationModule.class.getSimpleName();
@@ -125,10 +130,13 @@ public class SignalCommunicationModule {
   @Provides
   synchronized SignalServiceMessageReceiver provideSignalMessageReceiver() {
     if (this.messageReceiver == null) {
+      SleepTimer sleepTimer =  TextSecurePreferences.isGcmDisabled(context) ? new RealtimeSleepTimer(context) : new UptimeSleepTimer();
+
       this.messageReceiver = new SignalServiceMessageReceiver(networkAccess.getConfiguration(context),
                                                               new DynamicCredentialsProvider(context),
                                                               BuildConfig.USER_AGENT,
-                                                              new PipeConnectivityListener());
+                                                              new PipeConnectivityListener(),
+                                                              sleepTimer);
     }
 
     return this.messageReceiver;
@@ -162,12 +170,12 @@ public class SignalCommunicationModule {
 
     @Override
     public void onConnected() {
-      Log.w(TAG, "onConnected()");
+      Log.i(TAG, "onConnected()");
     }
 
     @Override
     public void onConnecting() {
-      Log.w(TAG, "onConnecting()");
+      Log.i(TAG, "onConnecting()");
     }
 
     @Override

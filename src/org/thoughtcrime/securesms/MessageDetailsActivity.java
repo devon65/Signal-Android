@@ -17,6 +17,8 @@
 package org.thoughtcrime.securesms;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
@@ -27,7 +29,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.util.Log;
+import org.thoughtcrime.securesms.logging.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,6 +57,7 @@ import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicTheme;
 import org.thoughtcrime.securesms.util.ExpirationUtil;
 import org.thoughtcrime.securesms.util.Util;
+import org.whispersystems.libsignal.util.guava.Optional;
 
 import java.lang.ref.WeakReference;
 import java.sql.Date;
@@ -202,6 +205,9 @@ public class MessageDetailsActivity extends PassphraseRequiredActionBarActivity 
   }
 
   private void updateTime(MessageRecord messageRecord) {
+    sentDate.setOnLongClickListener(null);
+    receivedDate.setOnLongClickListener(null);
+
     if (messageRecord.isPending() || messageRecord.isFailed()) {
       sentDate.setText("-");
       receivedContainer.setVisibility(View.GONE);
@@ -209,9 +215,17 @@ public class MessageDetailsActivity extends PassphraseRequiredActionBarActivity 
       Locale           dateLocale    = dynamicLanguage.getCurrentLocale();
       SimpleDateFormat dateFormatter = DateUtils.getDetailedDateFormatter(this, dateLocale);
       sentDate.setText(dateFormatter.format(new Date(messageRecord.getDateSent())));
+      sentDate.setOnLongClickListener(v -> {
+        copyToClipboard(String.valueOf(messageRecord.getDateSent()));
+        return true;
+      });
 
       if (messageRecord.getDateReceived() != messageRecord.getDateSent() && !messageRecord.isOutgoing()) {
         receivedDate.setText(dateFormatter.format(new Date(messageRecord.getDateReceived())));
+        receivedDate.setOnLongClickListener(v -> {
+          copyToClipboard(String.valueOf(messageRecord.getDateReceived()));
+          return true;
+        });
         receivedContainer.setVisibility(View.VISIBLE);
       } else {
         receivedContainer.setVisibility(View.GONE);
@@ -252,7 +266,7 @@ public class MessageDetailsActivity extends PassphraseRequiredActionBarActivity 
       toFromRes = R.string.message_details_header__from;
     }
     toFrom.setText(toFromRes);
-    conversationItem.bind(messageRecord, glideRequests, dynamicLanguage.getCurrentLocale(), new HashSet<>(), recipient, false);
+    conversationItem.bind(messageRecord, Optional.absent(), Optional.absent(), glideRequests, dynamicLanguage.getCurrentLocale(), new HashSet<>(), recipient, false);
     recipientsList.setAdapter(new MessageDetailsRecipientAdapter(this, glideRequests, messageRecord, recipients, isPushGroup));
   }
 
@@ -284,6 +298,9 @@ public class MessageDetailsActivity extends PassphraseRequiredActionBarActivity 
     }
   }
 
+  private void copyToClipboard(@NonNull String text) {
+    ((ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("text", text));
+  }
 
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {

@@ -1,7 +1,10 @@
 package org.thoughtcrime.securesms.jobs;
 
 import android.content.Context;
-import android.util.Log;
+import android.support.annotation.NonNull;
+
+import org.thoughtcrime.securesms.jobmanager.SafeData;
+import org.thoughtcrime.securesms.logging.Log;
 
 import org.thoughtcrime.securesms.ApplicationContext;
 import org.thoughtcrime.securesms.attachments.Attachment;
@@ -28,10 +31,11 @@ import org.whispersystems.signalservice.api.push.exceptions.UnregisteredUserExce
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import androidx.work.Data;
 
 public class PushMediaSendJob extends PushSendJob implements InjectableType {
 
@@ -39,18 +43,29 @@ public class PushMediaSendJob extends PushSendJob implements InjectableType {
 
   private static final String TAG = PushMediaSendJob.class.getSimpleName();
 
+  private static final String KEY_MESSAGE_ID = "message_id";
+
   @Inject transient SignalServiceMessageSender messageSender;
 
-  private final long messageId;
+  private long messageId;
+
+  public PushMediaSendJob() {
+    super(null, null);
+  }
 
   public PushMediaSendJob(Context context, long messageId, Address destination) {
-    super(context, constructParameters(context, destination));
+    super(context, constructParameters(destination));
     this.messageId = messageId;
   }
 
   @Override
-  public void onAdded() {
+  protected void initialize(@NonNull SafeData data) {
+    messageId = data.getLong(KEY_MESSAGE_ID);
+  }
 
+  @Override
+  protected @NonNull Data serialize(@NonNull Data.Builder dataBuilder) {
+    return dataBuilder.putLong(KEY_MESSAGE_ID, messageId).build();
   }
 
   @Override
@@ -63,6 +78,8 @@ public class PushMediaSendJob extends PushSendJob implements InjectableType {
     OutgoingMediaMessage   message           = database.getOutgoingMessage(messageId);
 
     try {
+      Log.i(TAG, "Sending message: " + messageId);
+
       deliver(message);
       database.markAsSent(messageId, true);
       markAttachmentsUploaded(messageId, message.getAttachments());
@@ -71,6 +88,8 @@ public class PushMediaSendJob extends PushSendJob implements InjectableType {
         database.markExpireStarted(messageId);
         expirationManager.scheduleDeletion(messageId, true, message.getExpiresIn());
       }
+
+      Log.i(TAG, "Sent message: " + messageId);
 
     } catch (InsecureFallbackApprovalException ifae) {
       Log.w(TAG, ifae);

@@ -23,7 +23,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.annimon.stream.function.Consumer;
 
@@ -43,6 +42,8 @@ import org.thoughtcrime.securesms.database.GroupDatabase;
 import org.thoughtcrime.securesms.database.RecipientDatabase.RecipientSettings;
 import org.thoughtcrime.securesms.database.RecipientDatabase.RegisteredState;
 import org.thoughtcrime.securesms.database.RecipientDatabase.VibrateState;
+import org.thoughtcrime.securesms.logging.Log;
+import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.recipients.RecipientProvider.RecipientDetails;
 import org.thoughtcrime.securesms.util.FutureTaskListener;
 import org.thoughtcrime.securesms.util.ListenableFutureTask;
@@ -90,6 +91,7 @@ public class Recipient implements RecipientModifiedListener {
   private @Nullable String         profileName;
   private @Nullable String         profileAvatar;
   private           boolean        profileSharing;
+  private           String         notificationChannel;
 
 
   @SuppressWarnings("ConstantConditions")
@@ -135,6 +137,7 @@ public class Recipient implements RecipientModifiedListener {
       this.seenInviteReminder    = stale.seenInviteReminder;
       this.defaultSubscriptionId = stale.defaultSubscriptionId;
       this.registered            = stale.registered;
+      this.notificationChannel   = stale.notificationChannel;
       this.profileKey            = stale.profileKey;
       this.profileName           = stale.profileName;
       this.profileAvatar         = stale.profileAvatar;
@@ -158,6 +161,7 @@ public class Recipient implements RecipientModifiedListener {
       this.seenInviteReminder    = details.get().seenInviteReminder;
       this.defaultSubscriptionId = details.get().defaultSubscriptionId;
       this.registered            = details.get().registered;
+      this.notificationChannel   = details.get().notificationChannel;
       this.profileKey            = details.get().profileKey;
       this.profileName           = details.get().profileName;
       this.profileAvatar         = details.get().profileAvatar;
@@ -187,6 +191,7 @@ public class Recipient implements RecipientModifiedListener {
             Recipient.this.seenInviteReminder    = result.seenInviteReminder;
             Recipient.this.defaultSubscriptionId = result.defaultSubscriptionId;
             Recipient.this.registered            = result.registered;
+            Recipient.this.notificationChannel   = result.notificationChannel;
             Recipient.this.profileKey            = result.profileKey;
             Recipient.this.profileName           = result.profileName;
             Recipient.this.profileAvatar         = result.profileAvatar;
@@ -233,6 +238,7 @@ public class Recipient implements RecipientModifiedListener {
     this.seenInviteReminder    = details.seenInviteReminder;
     this.defaultSubscriptionId = details.defaultSubscriptionId;
     this.registered            = details.registered;
+    this.notificationChannel   = details.notificationChannel;
     this.profileKey            = details.profileKey;
     this.profileName           = details.profileName;
     this.profileAvatar         = details.profileAvatar;
@@ -414,14 +420,14 @@ public class Recipient implements RecipientModifiedListener {
   }
 
   public synchronized @NonNull Drawable getFallbackContactPhotoDrawable(Context context, boolean inverted) {
-    return getFallbackContactPhoto().asDrawable(context, getColor().toConversationColor(context), inverted);
+    return getFallbackContactPhoto().asDrawable(context, getColor().toAvatarColor(context), inverted);
   }
 
   public synchronized @NonNull FallbackContactPhoto getFallbackContactPhoto() {
     if      (isResolving())            return new TransparentContactPhoto();
     else if (isGroupRecipient())       return new ResourceContactPhoto(R.drawable.ic_group_white_24dp, R.drawable.ic_group_large);
-    else if (!TextUtils.isEmpty(name)) return new GeneratedContactPhoto(name);
-    else                               return new GeneratedContactPhoto("#");
+    else if (!TextUtils.isEmpty(name)) return new GeneratedContactPhoto(name, R.drawable.ic_profile_default);
+    else                               return new ResourceContactPhoto(R.drawable.ic_profile_default, R.drawable.ic_person_large);
   }
 
   public synchronized @Nullable ContactPhoto getContactPhoto() {
@@ -574,6 +580,23 @@ public class Recipient implements RecipientModifiedListener {
     synchronized (this) {
       if (this.registered != value) {
         this.registered = value;
+        notify = true;
+      }
+    }
+
+    if (notify) notifyListeners();
+  }
+
+  public synchronized @Nullable String getNotificationChannel() {
+    return !NotificationChannels.supported() ? null : notificationChannel;
+  }
+
+  public void setNotificationChannel(@Nullable String value) {
+    boolean notify = false;
+
+    synchronized (this) {
+      if (!Util.equals(this.notificationChannel, value)) {
+        this.notificationChannel = value;
         notify = true;
       }
     }

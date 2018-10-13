@@ -4,10 +4,13 @@ package org.thoughtcrime.securesms.database.helpers;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
+
+import org.thoughtcrime.securesms.database.Address;
+import org.thoughtcrime.securesms.logging.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
@@ -31,6 +34,7 @@ import org.thoughtcrime.securesms.database.SignedPreKeyDatabase;
 import org.thoughtcrime.securesms.database.SmsDatabase;
 import org.thoughtcrime.securesms.database.ThreadDatabase;
 import org.thoughtcrime.securesms.jobs.RefreshPreKeysJob;
+import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.service.KeyCachingService;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 
@@ -50,8 +54,10 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
   private static final int SHARED_CONTACTS                  = 8;
   private static final int FULL_TEXT_SEARCH                 = 9;
   private static final int BAD_IMPORT_CLEANUP               = 10;
+  private static final int QUOTE_MISSING                    = 11;
+  private static final int NOTIFICATION_CHANNELS            = 12;
 
-  private static final int    DATABASE_VERSION = 10;
+  private static final int    DATABASE_VERSION = 12;
   private static final String DATABASE_NAME    = "signal.db";
 
   private final Context        context;
@@ -125,7 +131,7 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
 
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    Log.w(TAG, "Upgrading database: " + oldVersion + ", " + newVersion);
+    Log.i(TAG, "Upgrading database: " + oldVersion + ", " + newVersion);
 
     db.beginTransaction();
 
@@ -198,14 +204,12 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
         Log.i(TAG, "Beginning to build search index.");
         long start = SystemClock.elapsedRealtime();
 
-        db.execSQL("INSERT INTO " + SearchDatabase.SMS_FTS_TABLE_NAME + " (rowid, " + SearchDatabase.BODY + ") " +
-            "SELECT " + SmsDatabase.ID + " , " + SmsDatabase.BODY + " FROM " + SmsDatabase.TABLE_NAME);
+        db.execSQL("INSERT INTO sms_fts (rowid, body) SELECT _id, body FROM sms");
 
         long smsFinished = SystemClock.elapsedRealtime();
         Log.i(TAG, "Indexing SMS completed in " + (smsFinished - start) + " ms");
 
-        db.execSQL("INSERT INTO " + SearchDatabase.MMS_FTS_TABLE_NAME + " (rowid, " + SearchDatabase.BODY + ") " +
-            "SELECT " + MmsDatabase.ID + " , " + MmsDatabase.BODY + " FROM " + MmsDatabase.TABLE_NAME);
+        db.execSQL("INSERT INTO mms_fts (rowid, body) SELECT _id, body FROM mms");
 
         long mmsFinished = SystemClock.elapsedRealtime();
         Log.i(TAG, "Indexing MMS completed in " + (mmsFinished - smsFinished) + " ms");
@@ -237,6 +241,49 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
         }
       }
 
+      // Note: This column only being checked due to upgrade issues as described in #8184
+      if (oldVersion < QUOTE_MISSING && !columnExists(db, "mms", "quote_missing")) {
+        db.execSQL("ALTER TABLE mms ADD COLUMN quote_missing INTEGER DEFAULT 0");
+      }
+
+      // Note: The column only being checked due to upgrade issues as described in #8184
+      if (oldVersion < NOTIFICATION_CHANNELS && !columnExists(db, "recipient_preferences", "notification_channel")) {
+        db.execSQL("ALTER TABLE recipient_preferences ADD COLUMN notification_channel TEXT DEFAULT NULL");
+        NotificationChannels.create(context);
+
+        try (Cursor cursor = db.rawQuery("SELECT recipient_ids, system_display_name, signal_profile_name, notification, vibrate FROM recipient_preferences WHERE notification NOT NULL OR vibrate != 0", null)) {
+          while (cursor != null && cursor.moveToNext()) {
+            String  addressString   = cursor.getString(cursor.getColumnIndexOrThrow("recipient_ids"));
+            Address address         = Address.fromExternal(context, addressString);
+            String  systemName      = cursor.getString(cursor.getColumnIndexOrThrow("system_display_name"));
+            String  profileName     = cursor.getString(cursor.getColumnIndexOrThrow("signal_profile_name"));
+            String  messageSound    = cursor.getString(cursor.getColumnIndexOrThrow("notification"));
+            Uri     messageSoundUri = messageSound != null ? Uri.parse(messageSound) : null;
+            int     vibrateState    = cursor.getInt(cursor.getColumnIndexOrThrow("vibrate"));
+            String  displayName     = NotificationChannels.getChannelDisplayNameFor(context, systemName, profileName, address);
+            boolean vibrateEnabled  = vibrateState == 0 ? TextSecurePreferences.isNotificationVibrateEnabled(context) : vibrateState == 1;
+
+            if (address.isGroup()) {
+              try(Cursor groupCursor = db.rawQuery("SELECT title FROM groups WHERE group_id = ?", new String[] { address.toGroupString() })) {
+                if (groupCursor != null && groupCursor.moveToFirst()) {
+                  String title = groupCursor.getString(groupCursor.getColumnIndexOrThrow("title"));
+
+                  if (!TextUtils.isEmpty(title)) {
+                    displayName = title;
+                  }
+                }
+              }
+            }
+
+            String channelId = NotificationChannels.createChannelFor(context, address, displayName, messageSoundUri, vibrateEnabled);
+
+            ContentValues values = new ContentValues(1);
+            values.put("notification_channel", channelId);
+            db.update("recipient_preferences", values, "recipient_ids = ?", new String[] { addressString });
+          }
+        }
+      }
+
       db.setTransactionSuccessful();
     } finally {
       db.endTransaction();
@@ -264,5 +311,19 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
       db.execSQL(statement);
   }
 
+  private static boolean columnExists(@NonNull SQLiteDatabase db, @NonNull String table, @NonNull String column) {
+    try (Cursor cursor = db.rawQuery("PRAGMA table_info(" + table + ")", null)) {
+      int nameColumnIndex = cursor.getColumnIndexOrThrow("name");
 
+      while (cursor.moveToNext()) {
+        String name = cursor.getString(nameColumnIndex);
+
+        if (name.equals(column)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
 }

@@ -4,7 +4,9 @@ package org.thoughtcrime.securesms.jobs;
 import android.Manifest;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
+
+import org.thoughtcrime.securesms.jobmanager.SafeData;
+import org.thoughtcrime.securesms.logging.Log;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.backup.FullBackupExporter;
@@ -12,6 +14,7 @@ import org.thoughtcrime.securesms.crypto.AttachmentSecretProvider;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.NoExternalStorageException;
 import org.thoughtcrime.securesms.jobmanager.JobParameters;
+import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.permissions.Permissions;
 import org.thoughtcrime.securesms.service.GenericForegroundService;
 import org.thoughtcrime.securesms.util.BackupUtil;
@@ -23,36 +26,48 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
+
+import androidx.work.Data;
 
 public class LocalBackupJob extends ContextJob {
 
   private static final String TAG = LocalBackupJob.class.getSimpleName();
 
+  public LocalBackupJob() {
+    super(null, null);
+  }
+
   public LocalBackupJob(@NonNull Context context) {
     super(context, JobParameters.newBuilder()
                                 .withGroupId("__LOCAL_BACKUP__")
-                                .withWakeLock(true, 10, TimeUnit.SECONDS)
+                                .withDuplicatesIgnored(true)
                                 .create());
   }
 
   @Override
-  public void onAdded() {}
+  protected void initialize(@NonNull SafeData data) {
+  }
+
+  @Override
+  protected @NonNull Data serialize(@NonNull Data.Builder dataBuilder) {
+    return dataBuilder.build();
+  }
 
   @Override
   public void onRun() throws NoExternalStorageException, IOException {
-    Log.w(TAG, "Executing backup job...");
+    Log.i(TAG, "Executing backup job...");
 
     if (!Permissions.hasAll(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
       throw new IOException("No external storage permission!");
     }
 
     GenericForegroundService.startForegroundTask(context,
-                                                 context.getString(R.string.LocalBackupJob_creating_backup));
+                                                 context.getString(R.string.LocalBackupJob_creating_backup),
+                                                 NotificationChannels.BACKUPS);
 
     try {
       String backupPassword  = TextSecurePreferences.getBackupPassphrase(context);
-      File   backupDirectory = StorageUtil.getBackupDirectory(context);
+      File   backupDirectory = StorageUtil.getBackupDirectory();
       String timestamp       = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US).format(new Date());
       String fileName        = String.format("signal-%s.backup", timestamp);
       File   backupFile      = new File(backupDirectory, fileName);
@@ -78,7 +93,7 @@ public class LocalBackupJob extends ContextJob {
         throw new IOException("Renaming temporary backup file failed!");
       }
 
-      BackupUtil.deleteOldBackups(context);
+      BackupUtil.deleteOldBackups();
     } finally {
       GenericForegroundService.stopForegroundTask(context);
     }

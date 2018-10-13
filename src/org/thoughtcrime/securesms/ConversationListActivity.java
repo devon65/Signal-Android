@@ -21,12 +21,13 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.TooltipCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,11 +35,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
+import org.thoughtcrime.securesms.color.MaterialColor;
 import org.thoughtcrime.securesms.components.RatingManager;
 import org.thoughtcrime.securesms.components.SearchToolbar;
+import org.thoughtcrime.securesms.contacts.avatars.ContactColors;
+import org.thoughtcrime.securesms.contacts.avatars.GeneratedContactPhoto;
+import org.thoughtcrime.securesms.contacts.avatars.ProfileContactPhoto;
+import org.thoughtcrime.securesms.database.Address;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.MessagingDatabase.MarkedMessageInfo;
 import org.thoughtcrime.securesms.lock.RegistrationLockDialog;
+import org.thoughtcrime.securesms.mms.GlideApp;
 import org.thoughtcrime.securesms.notifications.MarkReadReceiver;
 import org.thoughtcrime.securesms.notifications.MessageNotifier;
 import org.thoughtcrime.securesms.permissions.Permissions;
@@ -49,6 +58,7 @@ import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme;
 import org.thoughtcrime.securesms.util.DynamicTheme;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
+import org.whispersystems.libsignal.util.guava.Optional;
 
 import java.util.List;
 
@@ -89,6 +99,8 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
 
     RatingManager.showRatingDialogIfNecessary(this);
     RegistrationLockDialog.showReminderIfNecessary(this);
+
+    TooltipCompat.setTooltipText(searchAction, getText(R.string.SearchToolbar_search_for_conversations_contacts_and_messages));
   }
 
   @Override
@@ -96,6 +108,8 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
     super.onResume();
     dynamicTheme.onResume(this);
     dynamicLanguage.onResume(this);
+
+    initializeProfileIcon();
   }
 
   @Override
@@ -160,6 +174,29 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
     });
   }
 
+  private void initializeProfileIcon() {
+    ImageView     icon          = findViewById(R.id.toolbar_icon);
+    Address       localAddress  = Address.fromSerialized(TextSecurePreferences.getLocalNumber(this));
+    Recipient     recipient     = Recipient.from(this, localAddress, true);
+    String        name          = Optional.fromNullable(recipient.getName()).or(Optional.fromNullable(TextSecurePreferences.getProfileName(this))).or("");
+    MaterialColor fallbackColor = recipient.getColor();
+
+    if (fallbackColor == ContactColors.UNKNOWN_COLOR && !TextUtils.isEmpty(name)) {
+      fallbackColor = ContactColors.generateFor(name);
+    }
+
+    Drawable fallback = new GeneratedContactPhoto(name, R.drawable.ic_profile_default).asDrawable(this, fallbackColor.toAvatarColor(this));
+
+    GlideApp.with(this)
+            .load(new ProfileContactPhoto(localAddress, String.valueOf(TextSecurePreferences.getProfileAvatarId(this))))
+            .error(fallback)
+            .circleCrop()
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .into(icon);
+
+    icon.setOnClickListener(v -> handleDisplaySettings());
+  }
+
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     super.onOptionsItemSelected(item);
@@ -169,7 +206,6 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
     case R.id.menu_settings:          handleDisplaySettings(); return true;
     case R.id.menu_clear_passphrase:  handleClearPassphrase(); return true;
     case R.id.menu_mark_all_read:     handleMarkAllRead();     return true;
-    case R.id.menu_import_export:     handleImportExport();    return true;
     case R.id.menu_invite:            handleInvite();          return true;
     case R.id.menu_help:              handleHelp();            return true;
     }
@@ -223,10 +259,6 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
     Intent intent = new Intent(this, KeyCachingService.class);
     intent.setAction(KeyCachingService.CLEAR_KEY_ACTION);
     startService(intent);
-  }
-
-  private void handleImportExport() {
-    startActivity(new Intent(this, ImportExportActivity.class));
   }
 
   @SuppressLint("StaticFieldLeak")

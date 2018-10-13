@@ -21,7 +21,6 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -34,6 +33,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.attachments.AttachmentServer;
+import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.PartAuthority;
 import org.thoughtcrime.securesms.mms.VideoSlide;
 import org.thoughtcrime.securesms.util.ViewUtil;
@@ -154,14 +155,14 @@ public class VideoPlayer extends FrameLayout {
     }
 
     if (videoSource.getUri() != null && PartAuthority.isLocalUri(videoSource.getUri())) {
-      Log.w(TAG, "Starting video attachment server for part provider Uri...");
+      Log.i(TAG, "Starting video attachment server for part provider Uri...");
       this.attachmentServer = new AttachmentServer(getContext(), videoSource.asAttachment());
       this.attachmentServer.start();
 
       //noinspection ConstantConditions
       this.videoView.setVideoURI(this.attachmentServer.getUri());
     } else if (videoSource.getUri() != null) {
-      Log.w(TAG, "Playing video directly from non-local Uri...");
+      Log.i(TAG, "Playing video directly from non-local Uri...");
       //noinspection ConstantConditions
       this.videoView.setVideoURI(videoSource.getUri());
     } else {
@@ -180,7 +181,7 @@ public class VideoPlayer extends FrameLayout {
     videoView.setMediaController(mediaController);
   }
 
-  private static class ExoPlayerListener implements ExoPlayer.EventListener {
+  private static class ExoPlayerListener extends Player.DefaultEventListener {
     private final Window window;
 
     ExoPlayerListener(Window window) {
@@ -190,12 +191,12 @@ public class VideoPlayer extends FrameLayout {
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
       switch(playbackState) {
-        case ExoPlayer.STATE_IDLE:
-        case ExoPlayer.STATE_BUFFERING:
-        case ExoPlayer.STATE_ENDED:
+        case Player.STATE_IDLE:
+        case Player.STATE_BUFFERING:
+        case Player.STATE_ENDED:
           window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
           break;
-        case ExoPlayer.STATE_READY:
+        case Player.STATE_READY:
           if (playWhenReady) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
           } else {
@@ -206,20 +207,5 @@ public class VideoPlayer extends FrameLayout {
           break;
       }
     }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) { }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) { }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) { }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException error) { }
-
-    @Override
-    public void onPositionDiscontinuity() { }
   }
 }

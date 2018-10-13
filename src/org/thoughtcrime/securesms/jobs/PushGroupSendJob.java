@@ -3,7 +3,6 @@ package org.thoughtcrime.securesms.jobs;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.annimon.stream.Stream;
 
@@ -17,8 +16,8 @@ import org.thoughtcrime.securesms.database.NoSuchMessageException;
 import org.thoughtcrime.securesms.database.documents.NetworkFailure;
 import org.thoughtcrime.securesms.dependencies.InjectableType;
 import org.thoughtcrime.securesms.jobmanager.JobParameters;
-import org.thoughtcrime.securesms.jobmanager.requirements.NetworkRequirement;
-import org.thoughtcrime.securesms.jobs.requirements.MasterSecretRequirement;
+import org.thoughtcrime.securesms.jobmanager.SafeData;
+import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.MediaConstraints;
 import org.thoughtcrime.securesms.mms.MmsException;
 import org.thoughtcrime.securesms.mms.OutgoingGroupMediaMessage;
@@ -44,8 +43,11 @@ import org.whispersystems.signalservice.internal.push.SignalServiceProtos.GroupC
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+
+import androidx.work.Data;
 
 public class PushGroupSendJob extends PushSendJob implements InjectableType {
 
@@ -55,17 +57,23 @@ public class PushGroupSendJob extends PushSendJob implements InjectableType {
 
   @Inject transient SignalServiceMessageSender messageSender;
 
-  private final long   messageId;
-  private final long   filterRecipientId; // Deprecated
-  private final String filterAddress;
+  private static final String KEY_MESSAGE_ID     = "message_id";
+  private static final String KEY_FILTER_ADDRESS = "filter_address";
+
+  private long   messageId;
+  private long   filterRecipientId; // Deprecated
+  private String filterAddress;
+
+  public PushGroupSendJob() {
+    super(null, null);
+  }
 
   public PushGroupSendJob(Context context, long messageId, @NonNull Address destination, @Nullable Address filterAddress) {
     super(context, JobParameters.newBuilder()
-                                .withPersistence()
                                 .withGroupId(destination.toGroupString())
-                                .withRequirement(new MasterSecretRequirement(context))
-                                .withRequirement(new NetworkRequirement(context))
-                                .withRetryCount(5)
+                                .withMasterSecretRequirement()
+                                .withNetworkRequirement()
+                                .withRetryDuration(TimeUnit.DAYS.toMillis(1))
                                 .create());
 
     this.messageId         = messageId;
@@ -74,7 +82,16 @@ public class PushGroupSendJob extends PushSendJob implements InjectableType {
   }
 
   @Override
-  public void onAdded() {
+  protected void initialize(@NonNull SafeData data) {
+    messageId     = data.getLong(KEY_MESSAGE_ID);
+    filterAddress = data.getString(KEY_FILTER_ADDRESS);
+  }
+
+  @Override
+  protected @NonNull Data serialize(@NonNull Data.Builder dataBuilder) {
+    return dataBuilder.putLong(KEY_MESSAGE_ID, messageId)
+                      .putString(KEY_FILTER_ADDRESS, filterAddress)
+                      .build();
   }
 
   @Override
@@ -85,6 +102,8 @@ public class PushGroupSendJob extends PushSendJob implements InjectableType {
     OutgoingMediaMessage message  = database.getOutgoingMessage(messageId);
 
     try {
+      Log.i(TAG, "Sending message: " + messageId);
+
       deliver(message, filterAddress == null ? null : Address.fromSerialized(filterAddress));
 
       database.markAsSent(messageId, true);
@@ -96,6 +115,8 @@ public class PushGroupSendJob extends PushSendJob implements InjectableType {
                           .getExpiringMessageManager()
                           .scheduleDeletion(messageId, true, message.getExpiresIn());
       }
+
+      Log.i(TAG, "Sent message: " + messageId);
     } catch (InvalidNumberException | RecipientFormattingException | UndeliverableMessageException e) {
       Log.w(TAG, e);
       database.markAsSentFailed(messageId);

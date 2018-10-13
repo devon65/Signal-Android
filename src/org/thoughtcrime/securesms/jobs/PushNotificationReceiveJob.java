@@ -1,19 +1,25 @@
 package org.thoughtcrime.securesms.jobs;
 
 import android.content.Context;
-import android.util.Log;
+import android.support.annotation.NonNull;
 
+import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.database.NoSuchMessageException;
 import org.thoughtcrime.securesms.dependencies.InjectableType;
 import org.thoughtcrime.securesms.jobmanager.JobParameters;
-import org.thoughtcrime.securesms.jobmanager.requirements.NetworkRequirement;
+import org.thoughtcrime.securesms.jobmanager.SafeData;
+import org.thoughtcrime.securesms.logging.Log;
+import org.thoughtcrime.securesms.util.TextSecurePreferences;
+import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
 import org.whispersystems.signalservice.api.messages.SignalServiceEnvelope;
 import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+
+import androidx.work.Data;
 
 public class PushNotificationReceiveJob extends PushReceivedJob implements InjectableType {
 
@@ -21,26 +27,46 @@ public class PushNotificationReceiveJob extends PushReceivedJob implements Injec
 
   @Inject transient SignalServiceMessageReceiver receiver;
 
+  public PushNotificationReceiveJob() {
+    super(null, null);
+  }
+
   public PushNotificationReceiveJob(Context context) {
     super(context, JobParameters.newBuilder()
-                                .withRequirement(new NetworkRequirement(context))
+                                .withNetworkRequirement()
                                 .withGroupId("__notification_received")
-                                .withWakeLock(true, 30, TimeUnit.SECONDS).create());
+                                .create());
   }
 
   @Override
-  public void onAdded() {}
+  protected void initialize(@NonNull SafeData data) {
+  }
+
+  @Override
+  protected @NonNull Data serialize(@NonNull Data.Builder dataBuilder) {
+    return dataBuilder.build();
+  }
+
+  @Override
+  protected String getDescription() {
+    return context.getString(R.string.PushNotificationReceiveJob_retrieving_a_message);
+  }
 
   @Override
   public void onRun() throws IOException {
-    receiver.retrieveMessages(new SignalServiceMessageReceiver.MessageReceivedCallback() {
-      @Override
-      public void onMessage(SignalServiceEnvelope envelope) {
-        handle(envelope);
-      }
-    });
+    pullAndProcessMessages(receiver, TAG, System.currentTimeMillis());
   }
 
+  public void pullAndProcessMessages(SignalServiceMessageReceiver receiver, String tag, long startTime) throws IOException {
+    synchronized (PushReceivedJob.RECEIVE_LOCK) {
+      receiver.retrieveMessages(envelope -> {
+        Log.i(tag, "Retrieved an envelope." + timeSuffix(startTime));
+        processEnvelope(envelope);
+        Log.i(tag, "Successfully processed an envelope." + timeSuffix(startTime));
+      });
+      TextSecurePreferences.setNeedsMessagePull(context, false);
+    }
+  }
   @Override
   public boolean onShouldRetry(Exception e) {
     Log.w(TAG, e);
@@ -51,5 +77,9 @@ public class PushNotificationReceiveJob extends PushReceivedJob implements Injec
   public void onCanceled() {
     Log.w(TAG, "***** Failed to download pending message!");
 //    MessageNotifier.notifyMessagesPending(getContext());
+  }
+
+  private static String timeSuffix(long startTime) {
+    return " (" + (System.currentTimeMillis() - startTime) + " ms elapsed)";
   }
 }
