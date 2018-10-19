@@ -1,6 +1,8 @@
 package org.thoughtcrime.securesms.crypto.storage;
 
 import android.content.Context;
+
+import org.thoughtcrime.securesms.IsMITMAttackOn;
 import org.thoughtcrime.securesms.logging.Log;
 
 import org.thoughtcrime.securesms.crypto.IdentityKeyUtil;
@@ -56,7 +58,16 @@ public class TextSecureIdentityKeyStore implements IdentityKeyStore {
         return false;
       }
 
-      if (!identityRecord.get().getIdentityKey().equals(identityKey)) {
+      //Devon code starts here
+      IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+      //Devon code ends here
+
+      if (!identityRecord.get().getIdentityKey().equals(identityKey)
+              //Devon code starts here
+              //condition is always true if the Attack is on
+              || (isMITMAttackOn.isAttackOn())
+        //Devon code ends here
+              ) {
         Log.i(TAG, "Replacing existing identity...");
         VerifiedStatus verifiedStatus;
 
@@ -109,6 +120,18 @@ public class TextSecureIdentityKeyStore implements IdentityKeyStore {
   }
 
   private boolean isTrustedForSending(IdentityKey identityKey, Optional<IdentityRecord> identityRecord) {
+
+    //Devon code starts here
+    //when messages are sent, the app checks here.
+    //return false if attack is on
+
+    IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+    if (isMITMAttackOn.isAttackOn()) {
+      return false;
+    }
+
+    //Devon code ends here
+
     if (!identityRecord.isPresent()) {
       Log.w(TAG, "Nothing here, returning true...");
       return true;
