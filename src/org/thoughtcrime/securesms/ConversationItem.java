@@ -800,7 +800,15 @@ public class ConversationItem extends LinearLayout
       throw new AssertionError("Identity mismatch count: " + mismatches.size());
     }
 
-    new ConfirmIdentityDialog(context, messageRecord, mismatches.get(0)).show();
+
+    //Devon newWarn code starts:
+    //commented out next line to replace it with my own privacyCheckGetStartedDialog
+
+    //new ConfirmIdentityDialog(context, messageRecord, mismatches.get(0)).show();
+
+    new PrivacyCheckGetStartedDialog(context, mismatches.get(0)).show();
+
+    //Devon code ends
   }
 
   @Override

@@ -109,7 +109,16 @@ public class MessageRecipientListItem extends RelativeLayout
       conflictButton.setVisibility(View.VISIBLE);
 
       errorText = getContext().getString(R.string.MessageDetailsRecipient_new_safety_number);
-      conflictButton.setOnClickListener(v -> new ConfirmIdentityDialog(getContext(), record, keyMismatch).show());
+
+      //Devon newWarn code starts:
+      //Test dialog looks here
+      //commented out next line to replace it with my own privacyCheckGetStartedDialog
+
+      //conflictButton.setOnClickListener(v -> new ConfirmIdentityDialog(getContext(), record, keyMismatch).show());
+
+      conflictButton.setOnClickListener(v -> new PrivacyCheckGetStartedDialog(getContext(), keyMismatch).show());
+
+      //Devon code ends
     } else if (networkFailure != null || (!isPushGroup && record.isFailed())) {
       resendButton.setVisibility(View.VISIBLE);
       resendButton.setEnabled(true);

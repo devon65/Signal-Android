@@ -1435,6 +1435,57 @@
     <string name="prompt_passphrase_activity__tap_to_unlock">TAP TO UNLOCK</string>
     <string name="RegistrationLockDialog_reminder">Reminder:</string>
     <string name="recipient_preferences__about">About</string>
+
+
+    <!-- Devon newAuth code starts -->
+
+    <!-- privacy check remind later dialog -->
+    <string name="privacy_check_remind_later_dialog_title">Reminder</string>
+    <string name="privacy_check_remind_later_dialog_you_can_keep_sending_messages">You can keep sending messages as normal, but we recommend not sending any sensitive information until you perform a privacy check.</string>
+    <string name="privacy_check_remind_later_dialog_tap_this_icon">Tap this icon above to run a privacy check at any time.</string>
+    <string name="privacy_check_remind_later_dialog_remind_me_later">Remind Me Later</string>
+    <string name="privacy_check_remind_later_dialog_I_understand">I Understand</string>
+
+
+    <!-- privacy check get started dialog -->
+    <string name="privacy_check_get_started_dialog_title">Privacy Check</string>
+    <string name="privacy_check_get_started_dialog_There_is_a_small_chance">There is a small chance that someone is intercepting your conversation.</string>
+    <string name="privacy_check_get_started_dialog_If_this_is_important_to_you">If this is important to you, then we can help you do a short privacy check.</string>
+    <string name="privacy_check_get_started_dialog_This_will_require_a_minute_or_two_of_your_time">This will require a minute or two of your time and you will need to either be in the same location as %s or use Signal to call them.</string>
+    <string name="privacy_check_get_started_dialog_Not_Now">Not Now</string>
+    <string name="privacy_check_get_started_dialog_Get_Started">Get Started</string>
+
+
+    <!-- privacy check get started dialog -->
+    <string name="signal_welcome_dialog_title">Welcome!</string>
+    <string name="signal_welcome_dialog_Signal_uses_encryption_to_make_your_conversations_private">Signal uses encryption to make your conversations private.</string>
+    <string name="signal_welcome_dialog_We_will_warn_you_if_you_need_to_run_a_privacy_check">We will warn you if you need to run a privacy check.</string>
+    <string name="signal_welcome_dialog_Tap_this_icon_to_run_a_privacy_check_at_any_time">Tap this icon to run a privacy check at any time.</string>
+    <string name="signal_welcome_dialog_Your_conversation_is_guaranteed_to_be_private">Your conversation is guaranteed to be private.</string>
+    <string name="signal_welcome_dialog_Start_Messaging">Start Messaging</string>
+
+
+    <!-- privacy check phone call no match dialog -->
+    <string name="phone_call_no_match_dialog_title">Warning</string>
+    <string name="phone_call_no_match_dialog_You_have_found_that_the_identifiers_do_not_match">You have found that the identifiers do not match. You should double check that they do not match.</string>
+    <string name="phone_call_no_match_dialog_If_they_truly_do_not_match">If they truly do not match, this means that someone is likely able to read and listen to your conversation. We recommend that you do not communicate any sensitive information.</string>
+    <string name="phone_call_no_match_dialog_Send_a_report_to_Signal">Send a report to Signal</string>
+    <string name="phone_call_no_match_dialog_Try_Again">Try Again</string>
+    <string name="phone_call_no_match_dialog_Okay">Okay</string>
+
+
+    <!-- privacy check phone call privacy verified dialog -->
+    <string name="phone_call_privacy_verified_dialog_title">Privacy Verified!</string>
+    <string name="phone_call_privacy_verified_dialog_Congratulations">Congratulations! You and %s have checked your device identifiers and found that they match.</string>
+    <string name="phone_call_privacy_verified_dialog_This_means_no_one_not_even_signal">This means no one, not even Signal can read or listen to your conversation. We will notify you if you ever need to check again.</string>
+    <string name="phone_call_privacy_verified_dialog_S_has_been_marked_as_verified">%s has been marked as verified</string>
+    <string name="phone_call_privacy_verified_dialog_Back_to_phone_call">Back to phone call</string>
+
+
+
+
+    <!-- Devon code ends -->
+
     <!-- EOF -->
 
 </resources>
