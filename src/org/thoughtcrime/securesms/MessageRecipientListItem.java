@@ -112,11 +112,11 @@ public class MessageRecipientListItem extends RelativeLayout
 
       //Devon newWarn code starts:
       //Test dialog looks here
-      //commented out next line to replace it with my own privacyCheckGetStartedDialog
+      //commented out next line to replace it with our own privacyCheckGetStartedDialog
 
       //conflictButton.setOnClickListener(v -> new ConfirmIdentityDialog(getContext(), record, keyMismatch).show());
 
-      conflictButton.setOnClickListener(v -> new PrivacyCheckGetStartedDialog(getContext(), keyMismatch).show());
+      conflictButton.setOnClickListener(v -> new PrivacyCheckGetStartedDialog(getContext(), record, keyMismatch).show());
 
       //Devon code ends
     } else if (networkFailure != null || (!isPushGroup && record.isFailed())) {

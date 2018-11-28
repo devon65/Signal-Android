@@ -1,39 +1,17 @@
 //Devon newWarn code starts
+//This file was copied from "ConfirmIdentityDialog.java" and adapted
 
 package org.thoughtcrime.securesms;
 
-import android.annotation.SuppressLint;
+
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
-import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
-
-import org.thoughtcrime.securesms.crypto.storage.TextSecureIdentityKeyStore;
-import org.thoughtcrime.securesms.database.Address;
-import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.database.MmsDatabase;
-import org.thoughtcrime.securesms.database.MmsSmsDatabase;
-import org.thoughtcrime.securesms.database.PushDatabase;
-import org.thoughtcrime.securesms.database.SmsDatabase;
 import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatch;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
-import org.thoughtcrime.securesms.jobs.PushDecryptJob;
 import org.thoughtcrime.securesms.recipients.Recipient;
-import org.thoughtcrime.securesms.sms.MessageSender;
-import org.thoughtcrime.securesms.util.Base64;
-import org.thoughtcrime.securesms.util.VerifySpan;
-import org.whispersystems.libsignal.SignalProtocolAddress;
-import org.whispersystems.signalservice.api.messages.SignalServiceEnvelope;
-import org.whispersystems.signalservice.internal.push.SignalServiceProtos;
-
-import java.io.IOException;
-
-import static org.whispersystems.libsignal.SessionCipher.SESSION_LOCK;
 
 public class PrivacyCheckGetStartedDialog extends AlertDialog {
 
@@ -43,7 +21,7 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
 
     private DialogInterface.OnClickListener callback;
 
-    public PrivacyCheckGetStartedDialog(Context context, IdentityKeyMismatch mismatch) {
+    public PrivacyCheckGetStartedDialog(Context context, MessageRecord messageRecord, IdentityKeyMismatch mismatch) {
         super(context);
 
         Recipient recipient = Recipient.from(context, mismatch.getAddress(), false);
@@ -58,7 +36,7 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
         setMessage(dialogBody);
 
         setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_get_started_dialog_Get_Started), new PrivacyCheckGetStartedDialog.AcceptListener());
-        setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.privacy_check_get_started_dialog_Not_Now), new PrivacyCheckGetStartedDialog.CancelListener());
+        setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.privacy_check_get_started_dialog_Not_Now), new PrivacyCheckGetStartedDialog.CancelListener(context, messageRecord, mismatch));
     }
 
     @Override
@@ -73,15 +51,30 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
     }
 
     private class AcceptListener implements OnClickListener {
+
         @Override
         public void onClick(DialogInterface dialog, int which) {
+
             if (callback != null) callback.onClick(null, 0);
         }
     }
 
     private class CancelListener implements OnClickListener {
+
+        private final Context              context;
+        private final IdentityKeyMismatch  mismatch;
+        private final MessageRecord        messageRecord;
+
+        private CancelListener(Context context, MessageRecord messageRecord, IdentityKeyMismatch mismatch) {
+            this.context       = context;
+            this.mismatch      = mismatch;
+            this.messageRecord = messageRecord;
+        }
+
         @Override
         public void onClick(DialogInterface dialog, int which) {
+            new PrivacyCheckRemindLaterDialog(context, messageRecord, mismatch).show();
+
             if (callback != null) callback.onClick(null, 0);
         }
     }

@@ -1441,10 +1441,12 @@
 
     <!-- privacy check remind later dialog -->
     <string name="privacy_check_remind_later_dialog_title">Reminder</string>
-    <string name="privacy_check_remind_later_dialog_you_can_keep_sending_messages">You can keep sending messages as normal, but we recommend not sending any sensitive information until you perform a privacy check.</string>
+    <string name="privacy_check_remind_later_dialog_you_can_keep_sending_messages">You can continue to send messages to %s as normal, but we recommend not sending any sensitive information until you perform a privacy check.</string>
     <string name="privacy_check_remind_later_dialog_tap_this_icon">Tap this icon above to run a privacy check at any time.</string>
     <string name="privacy_check_remind_later_dialog_remind_me_later">Remind Me Later</string>
     <string name="privacy_check_remind_later_dialog_I_understand">I Understand</string>
+    <string name="privacy_check_remind_later_dialog_Dont_resend">Don\'t Resend</string>
+    <string name="privacy_check_remind_later_dialog_Resend_failed_messages">Resend Failed Messages</string>
 
 
     <!-- privacy check get started dialog -->
@@ -1480,8 +1482,6 @@
     <string name="phone_call_privacy_verified_dialog_This_means_no_one_not_even_signal">This means no one, not even Signal can read or listen to your conversation. We will notify you if you ever need to check again.</string>
     <string name="phone_call_privacy_verified_dialog_S_has_been_marked_as_verified">%s has been marked as verified</string>
     <string name="phone_call_privacy_verified_dialog_Back_to_phone_call">Back to phone call</string>
-
-
 
 
     <!-- Devon code ends -->

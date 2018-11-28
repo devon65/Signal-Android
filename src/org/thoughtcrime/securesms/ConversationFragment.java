@@ -39,6 +39,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.text.ClipboardManager;
 import android.text.TextUtils;
+
+import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatch;
 import org.thoughtcrime.securesms.logging.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -404,13 +406,26 @@ public class ConversationFragment extends Fragment
   }
 
   private void handleDisplayDetails(MessageRecord message) {
-    Intent intent = new Intent(getActivity(), MessageDetailsActivity.class);
-    intent.putExtra(MessageDetailsActivity.MESSAGE_ID_EXTRA, message.getId());
-    intent.putExtra(MessageDetailsActivity.THREAD_ID_EXTRA, threadId);
-    intent.putExtra(MessageDetailsActivity.TYPE_EXTRA, message.isMms() ? MmsSmsDatabase.MMS_TRANSPORT : MmsSmsDatabase.SMS_TRANSPORT);
-    intent.putExtra(MessageDetailsActivity.ADDRESS_EXTRA, recipient.getAddress());
-    intent.putExtra(MessageDetailsActivity.IS_PUSH_GROUP_EXTRA, recipient.isGroupRecipient() && message.isPush());
-    startActivity(intent);
+
+    //Devon newWarn code starts
+    //This code will redirect the displayDetails click to our new dialog if there is
+    //a possible threat of an attack
+    if (!message.isOutgoing() && message.isIdentityMismatchFailure()) {
+
+      List<IdentityKeyMismatch> mismatches = message.getIdentityKeyMismatches();
+      new PrivacyCheckGetStartedDialog(getActivity(), message, mismatches.get(0)).show();
+
+    } else {
+      //Devon code ends
+
+      Intent intent = new Intent(getActivity(), MessageDetailsActivity.class);
+      intent.putExtra(MessageDetailsActivity.MESSAGE_ID_EXTRA, message.getId());
+      intent.putExtra(MessageDetailsActivity.THREAD_ID_EXTRA, threadId);
+      intent.putExtra(MessageDetailsActivity.TYPE_EXTRA, message.isMms() ? MmsSmsDatabase.MMS_TRANSPORT : MmsSmsDatabase.SMS_TRANSPORT);
+      intent.putExtra(MessageDetailsActivity.ADDRESS_EXTRA, recipient.getAddress());
+      intent.putExtra(MessageDetailsActivity.IS_PUSH_GROUP_EXTRA, recipient.isGroupRecipient() && message.isPush());
+      startActivity(intent);
+    }
   }
 
   private void handleForwardMessage(MessageRecord message) {

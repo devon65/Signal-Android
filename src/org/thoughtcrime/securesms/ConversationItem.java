@@ -17,6 +17,7 @@
 package org.thoughtcrime.securesms;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -806,7 +807,7 @@ public class ConversationItem extends LinearLayout
 
     //new ConfirmIdentityDialog(context, messageRecord, mismatches.get(0)).show();
 
-    new PrivacyCheckGetStartedDialog(context, mismatches.get(0)).show();
+    new PrivacyCheckGetStartedDialog(getContext(), messageRecord, mismatches.get(0)).show();
 
     //Devon code ends
   }
@@ -942,9 +943,23 @@ public class ConversationItem extends LinearLayout
     }
 
     public void onClick(View v) {
+
+
       if (!shouldInterceptClicks(messageRecord) && parent != null) {
         parent.onClick(v);
-      } else if (messageRecord.isFailed()) {
+      }
+
+      //Devon newWarn code starts
+      //This code will redirect the displayDetails click to our new dialog if there is
+      //a possible threat of an attack
+
+      else if (messageRecord.isIdentityMismatchFailure()) {
+        handleApproveIdentity();
+      }
+
+      //Devon code ends
+
+      else if (messageRecord.isFailed()) {
         Intent intent = new Intent(context, MessageDetailsActivity.class);
         intent.putExtra(MessageDetailsActivity.MESSAGE_ID_EXTRA, messageRecord.getId());
         intent.putExtra(MessageDetailsActivity.THREAD_ID_EXTRA, messageRecord.getThreadId());
@@ -952,9 +967,9 @@ public class ConversationItem extends LinearLayout
         intent.putExtra(MessageDetailsActivity.IS_PUSH_GROUP_EXTRA, groupThread && messageRecord.isPush());
         intent.putExtra(MessageDetailsActivity.ADDRESS_EXTRA, conversationRecipient.getAddress());
         context.startActivity(intent);
-      } else if (!messageRecord.isOutgoing() && messageRecord.isIdentityMismatchFailure()) {
+      }else if (!messageRecord.isOutgoing() && messageRecord.isIdentityMismatchFailure()) {
         handleApproveIdentity();
-      } else if (messageRecord.isPendingInsecureSmsFallback()) {
+      }else if (messageRecord.isPendingInsecureSmsFallback()) {
         handleMessageApproval();
       }
     }
