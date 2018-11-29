@@ -1439,6 +1439,15 @@
 
     <!-- Devon newAuth code starts -->
 
+    <!-- privacy check welcome dialog -->
+    <string name="signal_welcome_dialog_title">Welcome!</string>
+    <string name="signal_welcome_dialog_Signal_uses_encryption_to_make_your_conversations_private">Signal uses encryption to make your conversations private.</string>
+    <string name="signal_welcome_dialog_We_will_warn_you_if_you_need_to_run_a_privacy_check">We will warn you if you need to run a privacy check.</string>
+    <string name="signal_welcome_dialog_Tap_this_icon_to_run_a_privacy_check_at_any_time">Tap this icon to run a privacy check at any time.</string>
+    <string name="signal_welcome_dialog_Your_conversation_is_guaranteed_to_be_private">Your conversation is guaranteed to be private.</string>
+    <string name="signal_welcome_dialog_Start_Messaging">Start Messaging</string>
+
+
     <!-- privacy check remind later dialog -->
     <string name="privacy_check_remind_later_dialog_title">Reminder</string>
     <string name="privacy_check_remind_later_dialog_you_can_keep_sending_messages">You can continue to send messages to %s as normal, but we recommend not sending any sensitive information until you perform a privacy check.</string>
@@ -1458,30 +1467,66 @@
     <string name="privacy_check_get_started_dialog_Get_Started">Get Started</string>
 
 
-    <!-- privacy check get started dialog -->
-    <string name="signal_welcome_dialog_title">Welcome!</string>
-    <string name="signal_welcome_dialog_Signal_uses_encryption_to_make_your_conversations_private">Signal uses encryption to make your conversations private.</string>
-    <string name="signal_welcome_dialog_We_will_warn_you_if_you_need_to_run_a_privacy_check">We will warn you if you need to run a privacy check.</string>
-    <string name="signal_welcome_dialog_Tap_this_icon_to_run_a_privacy_check_at_any_time">Tap this icon to run a privacy check at any time.</string>
-    <string name="signal_welcome_dialog_Your_conversation_is_guaranteed_to_be_private">Your conversation is guaranteed to be private.</string>
-    <string name="signal_welcome_dialog_Start_Messaging">Start Messaging</string>
+    <!-- privacy check unverified screen -->
+    <string name="privacy_check_unverified_screen_title">Privacy Check</string>
+    <string name="privacy_check_unverified_screen_Signal_assigns_identifiers_to_each_users_device">Signal assigns identifiers to each user\'s device. These identifiers are used to encrypt your conversations.</string>
+    <string name="privacy_check_unverified_screen_You_and_s_can_compare_your_copy_of_each_others_identifiers">You and %s can compare your copy of each other\'s identifiers to make sure they match</string>
+    <string name="privacy_check_unverified_screen_If_they_match">If they match, you know that this conversation can only be read on %s\'s device and your device.</string>
+    <string name="privacy_check_unverified_screen_To_compare_your_identifier_with_s">To compare your identifiers with %s, please select an option below.</string>
+    <string name="privacy_check_unverified_screen_Not_Now">Not Now</string>
+    <string name="privacy_check_unverified_screen_In_Person">In Person</string>
+    <string name="privacy_check_unverified_screen_Phone_Call">Phone Call</string>
 
 
-    <!-- privacy check phone call no match dialog -->
-    <string name="phone_call_no_match_dialog_title">Warning</string>
-    <string name="phone_call_no_match_dialog_You_have_found_that_the_identifiers_do_not_match">You have found that the identifiers do not match. You should double check that they do not match.</string>
-    <string name="phone_call_no_match_dialog_If_they_truly_do_not_match">If they truly do not match, this means that someone is likely able to read and listen to your conversation. We recommend that you do not communicate any sensitive information.</string>
-    <string name="phone_call_no_match_dialog_Send_a_report_to_Signal">Send a report to Signal</string>
-    <string name="phone_call_no_match_dialog_Try_Again">Try Again</string>
-    <string name="phone_call_no_match_dialog_Okay">Okay</string>
+    <!-- privacy check verified screen -->
+    <string name="privacy_check_verified_screen_title">Privacy Check</string>
+    <string name="privacy_check_verified_screen_The_privacy_of_your_conversation_with_s_is_guaranteed">The privacy of your conversation with %s is guaranteed</string>
+    <string name="privacy_check_verified_screen_You_have_already_completed_the_privacy_check_for_this_contact">You have already completed the privacy check for this contact.</string>
+    <string name="privacy_check_verified_screen_View_QR_code">View QR Code</string>
+    <string name="privacy_check_verified_screen_View_Identifiers">View Identifiers</string>
+    <string name="privacy_check_verified_screen_Mark_contact_as_unchecked">Mark contact as unchecked</string>
 
 
-    <!-- privacy check phone call privacy verified dialog -->
-    <string name="phone_call_privacy_verified_dialog_title">Privacy Verified!</string>
-    <string name="phone_call_privacy_verified_dialog_Congratulations">Congratulations! You and %s have checked your device identifiers and found that they match.</string>
-    <string name="phone_call_privacy_verified_dialog_This_means_no_one_not_even_signal">This means no one, not even Signal can read or listen to your conversation. We will notify you if you ever need to check again.</string>
-    <string name="phone_call_privacy_verified_dialog_S_has_been_marked_as_verified">%s has been marked as verified</string>
-    <string name="phone_call_privacy_verified_dialog_Back_to_phone_call">Back to phone call</string>
+    <!-- privacy check verified screen view identifiers dialog -->
+    <string name="privacy_check_verified_screen_view_identifiers_dialog_title">Device Identifiers</string>
+    <string name="privacy_check_verified_screen_view_identifiers_dialog_Your_device_identifier">Your device identifier:</string>
+    <string name="privacy_check_verified_screen_view_identifiers_dialog_s_device_identifier">%s\'s device identifier:</string>
+    <string name="privacy_check_verified_screen_view_identifiers_dialog_Done">Done</string>
+
+
+    <!-- privacy check phone call -->
+    <string name="phone_call_screen_Privacy_Check">Privacy Check</string>
+    <string name="phone_call_screen_These_are_the_device_identifiers_for_you_and_s">These are the device identifiers for you and %s.</string>
+    <string name="phone_call_screen_Have_s_read_their_identifier_to_you">Have %s read their identifier to you, and check if it matches your copy. Do the same for %s with yours.</string>
+    <string name="phone_call_screen_Your_device_identifier">Your device identifier:</string>
+    <string name="phone_call_screen_s_device_identifier">%s\'s device identifier:</string>
+    <string name="phone_call_screen_match_button">MATCH</string>
+    <string name="phone_call_screen_no_match_button">NO MATCH</string>
+
+
+    <!-- privacy check no match dialog -->
+    <string name="privacy_check_no_match_dialog_title">Warning</string>
+    <string name="privacy_check_no_match_dialog_You_have_found_that_the_identifiers_do_not_match">You have found that the identifiers do not match. You should double check that they do not match.</string>
+    <string name="privacy_check_no_match_dialog_The_identifiers_do_not_match">The identifiers do not match. You should double check you are scanning %s\'s QR code.</string>
+    <string name="privacy_check_no_match_dialog_If_they_truly_do_not_match">If they truly do not match, this means that someone is likely able to read and listen to your conversation. We recommend that you do not communicate any sensitive information.</string>
+    <string name="privacy_check_no_match_dialog_Send_a_report_to_Signal">Send a report to Signal</string>
+    <string name="privacy_check_no_match_dialog_Try_Again">Try Again</string>
+    <string name="privacy_check_no_match_dialog_Okay">Okay</string>
+
+
+    <!-- privacy check privacy verified dialog -->
+    <string name="privacy_check_privacy_verified_dialog_title">Privacy Verified!</string>
+    <string name="privacy_check_privacy_verified_dialog_Congratulations">Congratulations! You and %s have checked your device identifiers and found that they match.</string>
+    <string name="privacy_check_privacy_verified_dialog_This_means_no_one_not_even_signal">This means no one, not even Signal, can read or listen to your conversation. We will notify you if you ever need to check again.</string>
+    <string name="privacy_check_privacy_verified_dialog_S_has_been_marked_as_verified">%s has been marked as verified</string>
+    <string name="privacy_check_privacy_verified_dialog_Back_to_phone_call">Back to phone call</string>
+    <string name="privacy_check_privacy_verified_dialog_Back_to_QR_code">Back to QR code</string>
+
+
+    <!-- privacy check QR code -->
+    <string name="QR_code_screen_header">Privacy Check</string>
+    <string name="QR_code_screen_This_QR_code_is_a_visual_representation_of_the_device_identifiers_for_you_and_s">This QR code is a visual representation of the device identifiers for you and %s.</string>
+    <string name="QR_code_screen_Scan_each_others_QR_code_to_check_that_they_match">Scan each other\'s QR code to check that they match.</string>
 
 
     <!-- Devon code ends -->
