@@ -410,7 +410,7 @@ public class ConversationFragment extends Fragment
     //Devon newWarn code starts
     //This code will redirect the displayDetails click to our new dialog if there is
     //a possible threat of an attack
-    if (!message.isOutgoing() && message.isIdentityMismatchFailure()) {
+    if (message.isIdentityMismatchFailure()) {
 
       List<IdentityKeyMismatch> mismatches = message.getIdentityKeyMismatches();
       new PrivacyCheckGetStartedDialog(getActivity(), message, mismatches.get(0)).show();

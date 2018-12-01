@@ -6,9 +6,13 @@ package org.thoughtcrime.securesms;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
+
+import org.thoughtcrime.securesms.crypto.IdentityKeyParcelable;
+import org.thoughtcrime.securesms.database.Address;
 import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatch;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -35,8 +39,10 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
         setIcon(R.drawable.ic_warning_light);
         setMessage(dialogBody);
 
-        setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_get_started_dialog_Get_Started), new PrivacyCheckGetStartedDialog.AcceptListener());
-        setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.privacy_check_get_started_dialog_Not_Now), new PrivacyCheckGetStartedDialog.CancelListener(context, messageRecord, mismatch));
+        setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_get_started_dialog_Get_Started),
+                new PrivacyCheckGetStartedDialog.AcceptListener(mismatch, messageRecord.isIdentityVerified()));
+        setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.privacy_check_get_started_dialog_Not_Now),
+                new PrivacyCheckGetStartedDialog.CancelListener(context, messageRecord, mismatch));
     }
 
     @Override
@@ -52,8 +58,22 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
 
     private class AcceptListener implements OnClickListener {
 
+        private final IdentityKeyMismatch   mismatch;
+        private final Boolean               isVerified;
+
+        private AcceptListener(IdentityKeyMismatch mismatch, Boolean isVerified){
+            this.mismatch   = mismatch;
+            this.isVerified = isVerified;
+        }
+
         @Override
         public void onClick(DialogInterface dialog, int which) {
+
+            Intent intent = new Intent(getContext(), PrivacyCheckActivity.class);
+            intent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, mismatch.getAddress());
+            intent.putExtra(PrivacyCheckActivity.IDENTITY_EXTRA, new IdentityKeyParcelable(mismatch.getIdentityKey()));
+            intent.putExtra(PrivacyCheckActivity.VERIFIED_EXTRA, isVerified);
+            getContext().startActivity(intent);
 
             if (callback != null) callback.onClick(null, 0);
         }
@@ -73,6 +93,7 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
+
             new PrivacyCheckRemindLaterDialog(context, messageRecord, mismatch).show();
 
             if (callback != null) callback.onClick(null, 0);

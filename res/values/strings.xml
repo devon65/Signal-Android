@@ -1468,7 +1468,6 @@
 
 
     <!-- privacy check unverified screen -->
-    <string name="privacy_check_unverified_screen_title">Privacy Check</string>
     <string name="privacy_check_unverified_screen_Signal_assigns_identifiers_to_each_users_device">Signal assigns identifiers to each user\'s device. These identifiers are used to encrypt your conversations.</string>
     <string name="privacy_check_unverified_screen_You_and_s_can_compare_your_copy_of_each_others_identifiers">You and %s can compare your copy of each other\'s identifiers to make sure they match</string>
     <string name="privacy_check_unverified_screen_If_they_match">If they match, you know that this conversation can only be read on %s\'s device and your device.</string>
@@ -1479,8 +1478,8 @@
 
 
     <!-- privacy check verified screen -->
-    <string name="privacy_check_verified_screen_title">Privacy Check</string>
-    <string name="privacy_check_verified_screen_The_privacy_of_your_conversation_with_s_is_guaranteed">The privacy of your conversation with %s is guaranteed</string>
+    <string name="privacy_check_screen_header">Privacy Check</string>
+    <string name="privacy_check_verified_screen_The_privacy_of_your_conversation_with_s_is_guaranteed">The privacy of your conversation with %s is guaranteed.</string>
     <string name="privacy_check_verified_screen_You_have_already_completed_the_privacy_check_for_this_contact">You have already completed the privacy check for this contact.</string>
     <string name="privacy_check_verified_screen_View_QR_code">View QR Code</string>
     <string name="privacy_check_verified_screen_View_Identifiers">View Identifiers</string>
@@ -1527,6 +1526,9 @@
     <string name="QR_code_screen_header">Privacy Check</string>
     <string name="QR_code_screen_This_QR_code_is_a_visual_representation_of_the_device_identifiers_for_you_and_s">This QR code is a visual representation of the device identifiers for you and %s.</string>
     <string name="QR_code_screen_Scan_each_others_QR_code_to_check_that_they_match">Scan each other\'s QR code to check that they match.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
     <!-- Devon code ends -->

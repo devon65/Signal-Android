@@ -707,7 +707,6 @@
             android:name=".ManInMiddleService"
             android:exported="false" />
 
-        <activity android:name=".PrivacyCheckReminderDialog" />
         <activity android:name=".PrivacyCheckActivity"></activity>
     </application>
 
