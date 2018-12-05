@@ -73,6 +73,7 @@ public class ConversationTitleView extends RelativeLayout {
     }
   }
 
+  //Devon Comment: I foond it! Where the checkmark is set
   public void setVerified(boolean verified) {
     this.verified.setVisibility(verified ? View.VISIBLE : View.GONE);
   }

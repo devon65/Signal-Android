@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -179,6 +180,7 @@ import org.thoughtcrime.securesms.util.concurrent.AssertedSuccessListener;
 import org.thoughtcrime.securesms.util.concurrent.ListenableFuture;
 import org.thoughtcrime.securesms.util.concurrent.SettableFuture;
 import org.thoughtcrime.securesms.util.views.Stub;
+import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.util.guava.Optional;
 
@@ -254,6 +256,12 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   protected Stub<ReminderView>          reminderView;
   private   Stub<UnverifiedBannerView>  unverifiedBannerView;
   private   Stub<GroupShareProfileView> groupShareProfileView;
+
+  //Devon newWarn code starts
+
+  private MenuItem shieldMenuIcon;
+
+  //Devon code ends
 
   private   AttachmentTypeSelector attachmentTypeSelector;
   private   AttachmentManager      attachmentManager;
@@ -377,6 +385,13 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     setActionBarColor(recipient.getColor());
     setBlockedUserState(recipient, isSecureText, isDefaultSms);
     setGroupShareProfileReminder(recipient);
+
+    //Devon newWarn code starts
+
+    setShieldMenuIcon();
+
+    //Devon code ends
+
     calculateCharactersRemaining();
 
     MessageNotifier.setVisibleThread(threadId);
@@ -542,6 +557,8 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     MenuInflater inflater = this.getMenuInflater();
     menu.clear();
 
+    //Devon Comment: I foond it!
+
     if (isSecureText) {
       if (recipient.getExpireMessages() > 0) {
         inflater.inflate(R.menu.conversation_expiring_on, menu);
@@ -558,6 +575,16 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     }
 
     if (isSingleConversation()) {
+
+      //Devon newWarn code starts
+      //This adds the different shields depending on verified status
+
+      inflater.inflate(R.menu.conversation_shield, menu);
+      this.shieldMenuIcon = menu.findItem(R.id.menu_shield);
+      setShieldMenuIcon();
+
+      //Devon code ends
+
       if (isSecureText) inflater.inflate(R.menu.conversation_callable_secure, menu);
       else              inflater.inflate(R.menu.conversation_callable_insecure, menu);
     } else if (isGroupConversation()) {
@@ -598,6 +625,14 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   public boolean onOptionsItemSelected(MenuItem item) {
     super.onOptionsItemSelected(item);
     switch (item.getItemId()) {
+
+    //Devon newWarn code starts
+    //handling shield click
+
+    case R.id.menu_shield:                    handleMenuShield();                               return true;
+
+    //Devon code ends
+
     case R.id.menu_call_secure:               handleDial(getRecipient(), true);                  return true;
     case R.id.menu_call_insecure:             handleDial(getRecipient(), false);                 return true;
     case R.id.menu_view_media:                handleViewMedia();                                 return true;
@@ -644,6 +679,43 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   }
 
   //////// Event Handlers
+
+
+  //Devon newWarn code starts
+  //Handler for shields
+
+  private void handleMenuShield(){
+
+    IdentityUtil.getRemoteIdentityKey(this, this.recipient).addListener(new ListenableFuture.Listener<Optional<IdentityRecord>>() {
+      @Override
+      public void onSuccess(Optional<IdentityRecord> result) {
+        IdentityRecord remoteIdentity = result.get();
+
+        Intent intent = new Intent(getApplicationContext(), PrivacyCheckActivity.class);
+        intent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, recipient.getAddress());
+        intent.putExtra(PrivacyCheckActivity.IDENTITY_EXTRA, new IdentityKeyParcelable(remoteIdentity.getIdentityKey()));
+        intent.putExtra(PrivacyCheckActivity.VERIFIED_EXTRA, remoteIdentity.getVerifiedStatus() == IdentityDatabase.VerifiedStatus.VERIFIED);
+        getApplicationContext().startActivity(intent);
+      }
+
+      @Override
+      public void onFailure(ExecutionException e) {
+        Toast.makeText(getApplicationContext(), "Congratulations! You have broken the study! (Friend\'s key not found)", Toast.LENGTH_LONG).show();
+      }
+    });
+
+  }
+
+  private void setShieldMenuIcon() {
+    if (shieldMenuIcon != null) {
+      if (identityRecords.isVerified()) {
+        shieldMenuIcon.setIcon(R.drawable.ic_devon_header_verified_shield);
+      } else {
+        shieldMenuIcon.setIcon(R.drawable.ic_devon_header_unverified_shield);
+      }
+    }
+  }
+  //Devon code ends
 
   private void handleReturnToConversationList() {
     Intent intent = new Intent(this, (archived ? ConversationListArchiveActivity.class : ConversationListActivity.class));
@@ -1338,7 +1410,14 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
           unverifiedBannerView.get().hide();
         }
 
-        titleView.setVerified(isSecureText && identityRecords.isVerified());
+        //Devon newWarn code starts
+        //commenting out original next line which updates the "verified checkmark" next to the
+        //phone number and replacing it with shield icon update
+        //titleView.setVerified(isSecureText && identityRecords.isVerified());
+
+        setShieldMenuIcon();
+
+        //Devon code ends
 
         future.set(true);
       }
@@ -1468,7 +1547,17 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     Util.runOnMain(() -> {
       Log.i(TAG, "onModifiedRun(): " + recipient.getRegistered());
       titleView.setTitle(glideRequests, recipient);
-      titleView.setVerified(identityRecords.isVerified());
+
+
+      //Devon newWarn code starts
+      //commenting out original next line which updates the "verified checkmark" next to the
+      //phone number and replacing it with shield icon update
+      //titleView.setVerified(identityRecords.isVerified());
+
+      setShieldMenuIcon();
+
+      //Devon code ends
+
       setBlockedUserState(recipient, isSecureText, isDefaultSms);
       setActionBarColor(recipient.getColor());
       setGroupShareProfileReminder(recipient);

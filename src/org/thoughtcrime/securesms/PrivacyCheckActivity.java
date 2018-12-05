@@ -38,19 +38,6 @@ public class PrivacyCheckActivity extends AppCompatActivity {
         this.recipient = Recipient.from(this, (Address)getIntent().getParcelableExtra(ADDRESS_EXTRA), true);
         setActionBarNotificationBarColor(recipient.getColor());
 
-        /*Fragment displayFrag;
-        Boolean isVerified = getIntent().getBooleanExtra(VERIFIED_EXTRA, false);
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-        if (isVerified){
-            displayFrag = initializePrivacyCheckVerifiedFragment(recipient);
-        }
-        else{
-            displayFrag = initializePrivacyCheckUnverifiedFragment(recipient);
-        }
-
-        transaction.replace(R.id.privacy_check_fragment_container, displayFrag);
-        transaction.commit();*/
 
     }
 

@@ -1527,8 +1527,8 @@
     <string name="QR_code_screen_This_QR_code_is_a_visual_representation_of_the_device_identifiers_for_you_and_s">This QR code is a visual representation of the device identifiers for you and %s.</string>
     <string name="QR_code_screen_Scan_each_others_QR_code_to_check_that_they_match">Scan each other\'s QR code to check that they match.</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- icon titles -->
+    <string name="conversation_shield_menu">Shield Icon</string>
 
 
     <!-- Devon code ends -->

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Devon newWarn code starts -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:title="@string/conversation_shield_menu"
+        android:id="@+id/menu_shield"
+        android:icon="@drawable/ic_devon_header_unverified_shield"
+        app:showAsAction="always" />
+
+</menu>
+    <!-- Devon code ends -->
