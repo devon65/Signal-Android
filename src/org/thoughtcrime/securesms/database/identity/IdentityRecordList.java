@@ -39,6 +39,20 @@ public class IdentityRecordList {
     return identityRecords.size() > 0;
   }
 
+  //Devon newWarn code starts
+
+  public boolean isVeryUnverified() {
+    for (IdentityRecord identityRecord : identityRecords) {
+      if (identityRecord.getVerifiedStatus() == VerifiedStatus.VERYUNVERIFIED) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  //Devon code ends
+
   public boolean isUnverified() {
     for (IdentityRecord identityRecord : identityRecords) {
       if (identityRecord.getVerifiedStatus() == VerifiedStatus.UNVERIFIED) {

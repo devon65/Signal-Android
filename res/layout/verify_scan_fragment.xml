@@ -1,27 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <org.thoughtcrime.securesms.components.camera.CameraView
-            android:id="@+id/scanner"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:camera="0"/>
+<!-- Elham code starts -->
 
-    <LinearLayout android:id="@+id/overlay"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:orientation="vertical">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
 
-        <org.thoughtcrime.securesms.components.ShapeScrim
+    <LinearLayout android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="0dp"
+        android:gravity="center_horizontal"
+        android:background="?verification_background"
+        android:orientation="vertical">
+
+        <FrameLayout android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <!-- Elham code ends -->
+
+            <org.thoughtcrime.securesms.components.camera.CameraView
+                android:id="@+id/scanner"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:radius="0.3"
-                app:shape="circle"/>
+                app:camera="0"/>
 
+            <LinearLayout android:id="@+id/overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <org.thoughtcrime.securesms.components.ShapeScrim
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:radius="0.3"
+                    app:shape="circle"/>
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <!-- Elham code starts -->
+
+        <FrameLayout android:layout_width="250dp"
+            android:layout_height="250dp">
+
+            <org.thoughtcrime.securesms.components.SquareImageView
+                android:id="@+id/qr_code_frag"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="20dp"
+                android:padding="20dp"
+                android:background="@drawable/qr_code_background"
+                android:visibility="visible"
+                tools:src="@drawable/splash_logo"
+                />
+
+            <org.thoughtcrime.securesms.components.SquareImageView
+                android:id="@+id/qr_verified_frag"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="20dp"
+                android:padding="20dp"
+                android:src="@drawable/ic_check_white_48dp"
+                android:background="@drawable/qr_code_background"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:text="Scan Qr code on your contact's phone" />
+
+        </FrameLayout>
 
     </LinearLayout>
 
-</FrameLayout>
+</ScrollView>
+
+    <!-- Elham code ends -->

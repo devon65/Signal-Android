@@ -127,6 +127,7 @@ public class TextSecureIdentityKeyStore implements IdentityKeyStore {
 
     IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
     if (isMITMAttackOn.isAttackOn()) {
+      saveIdentity(new SignalProtocolAddress(identityRecord.get().getAddress().toPhoneString(), 1), identityKey);
       return false;
     }
 
@@ -139,6 +140,14 @@ public class TextSecureIdentityKeyStore implements IdentityKeyStore {
 
     if (!identityKey.equals(identityRecord.get().getIdentityKey())) {
       Log.w(TAG, "Identity keys don't match...");
+
+      //Devon newWarn code starts
+      //This will set the verified status of the contact to be unverified
+
+      saveIdentity(new SignalProtocolAddress(identityRecord.get().getAddress().toPhoneString(), 1), identityKey);
+
+      //Devon code ends
+
       return false;
     }
 

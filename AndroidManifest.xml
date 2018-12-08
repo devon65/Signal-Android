@@ -707,7 +707,10 @@
             android:name=".ManInMiddleService"
             android:exported="false" />
 
-        <activity android:name=".PrivacyCheckActivity"></activity>
+        <activity android:name=".PrivacyCheckActivity" />
+        <activity
+            android:name=".PrivacyCheckQRScannerActivity"
+            android:label="@string/title_activity_privacy_check_qrscanner"></activity>
     </application>
 
 </manifest>

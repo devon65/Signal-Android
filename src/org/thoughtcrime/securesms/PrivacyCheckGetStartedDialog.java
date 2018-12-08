@@ -71,8 +71,6 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
 
             Intent intent = new Intent(getContext(), PrivacyCheckActivity.class);
             intent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, mismatch.getAddress());
-            intent.putExtra(PrivacyCheckActivity.IDENTITY_EXTRA, new IdentityKeyParcelable(mismatch.getIdentityKey()));
-            intent.putExtra(PrivacyCheckActivity.VERIFIED_EXTRA, isVerified);
             getContext().startActivity(intent);
 
             if (callback != null) callback.onClick(null, 0);

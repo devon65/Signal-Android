@@ -57,12 +57,22 @@ public class IdentityDatabase extends Database {
       NONBLOCKING_APPROVAL + " INTEGER DEFAULT 0);";
 
   public enum VerifiedStatus {
+
+    //Devon newWarn code starts: add the new "VERYUNVERIFIED" state here
+    VERYUNVERIFIED,
+    //Devon code ends
+
     DEFAULT, VERIFIED, UNVERIFIED;
 
     public int toInt() {
       if      (this == DEFAULT)    return 0;
       else if (this == VERIFIED)   return 1;
       else if (this == UNVERIFIED) return 2;
+
+      //Devon newWarn code starts
+      else if (this == VERYUNVERIFIED) return 3;
+      //Devon code ends
+
       else throw new AssertionError();
     }
 
@@ -70,6 +80,11 @@ public class IdentityDatabase extends Database {
       if      (state == 0) return DEFAULT;
       else if (state == 1) return VERIFIED;
       else if (state == 2) return UNVERIFIED;
+
+      //Devon newWarn code starts
+      else if (state == 3) return VERYUNVERIFIED;
+      //Devon code ends
+
       else throw new AssertionError("No such state: " + state);
     }
   }

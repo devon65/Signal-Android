@@ -3,6 +3,7 @@
 package org.thoughtcrime.securesms;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +11,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.thoughtcrime.securesms.crypto.IdentityKeyParcelable;
+import org.thoughtcrime.securesms.database.Address;
+import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.database.IdentityDatabase;
+import org.thoughtcrime.securesms.jobs.MultiDeviceVerifiedUpdateJob;
+import org.thoughtcrime.securesms.logging.Log;
+import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.util.IdentityUtil;
+import org.whispersystems.libsignal.IdentityKey;
+
+import static org.whispersystems.libsignal.SessionCipher.SESSION_LOCK;
 
 
 public class PrivacyCheckVerifiedFragment extends Fragment {
@@ -27,9 +40,13 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
     private TextView markContactAsUnverifiedButton;
     private TextView screenTitle;
 
-    private String recipientName;
+    private String      recipientName;
+    private IdentityKey remoteIdentityKey;
+    private Address     remoteAddress;
+    private Recipient   recipient;
 
-    //private OnFragmentInteractionListener mListener;
+
+    private OnMarkContactAsUnverifiedListener mListener;
 
     public PrivacyCheckVerifiedFragment() {}
 
@@ -38,7 +55,11 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            recipientName = getArguments().getString(RECIPIENT_NAME);
+            recipientName                   = getArguments().getString(RECIPIENT_NAME);
+            IdentityKeyParcelable remoteKey = getArguments().getParcelable(REMOTE_IDENTITY);
+            remoteIdentityKey               = remoteKey.get();
+            remoteAddress                   = getArguments().getParcelable(REMOTE_ADDRESS);
+            recipient                       = Recipient.from(getActivity(), remoteAddress, true);
         }
     }
 
@@ -67,7 +88,8 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
         markContactAsUnverifiedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                markContactAsVerifiedClicked();
+                markContactAsVerifiedClicked(getContext(), remoteIdentityKey, recipient);
+                mListener.switchToUnverifiedFragment();
             }
         });
 
@@ -79,26 +101,49 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
 
     private void viewQRCodeClicked(){
         Toast.makeText(getContext(), "Ah Yeah!", Toast.LENGTH_LONG).show();
+        mListener.onInPersonAuthentication();
     }
 
     private void viewIdentifiersClicked(){
         Toast.makeText(getContext(), "Oh Baby!", Toast.LENGTH_LONG).show();
     }
 
-    private void markContactAsVerifiedClicked(){
-        Toast.makeText(getContext(), "Que Suave!", Toast.LENGTH_LONG).show();
+    private static void markContactAsVerifiedClicked(Context context, IdentityKey remoteIdentityKey, Recipient recipient){
+        new AsyncTask<Recipient, Void, Void>() {
+            @Override
+            protected Void doInBackground(Recipient... params) {
+                synchronized (SESSION_LOCK) {
+                        DatabaseFactory.getIdentityDatabase(context)
+                                .setVerified(params[0].getAddress(),
+                                        remoteIdentityKey,
+                                        IdentityDatabase.VerifiedStatus.DEFAULT);
+
+                    /*ApplicationContext.getInstance(getActivity())
+                            .getJobManager()
+                            .add(new MultiDeviceVerifiedUpdateJob(getActivity(),
+                                    recipient.getAddress(),
+                                    remoteIdentity,
+                                    IdentityDatabase.VerifiedStatus.DEFAULT));*/
+
+                    IdentityUtil.markIdentityVerified(context, recipient, false, false);
+
+
+                }
+                return null;
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, recipient);
     }
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        /*if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnMarkContactAsUnverifiedListener) {
+            mListener = (OnMarkContactAsUnverifiedListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
-        }*/
+        }
 
 
     }
@@ -106,23 +151,14 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        //mListener = null;
+        mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    /*public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }*/
+
+    public interface OnMarkContactAsUnverifiedListener {
+        void switchToUnverifiedFragment();
+        void onInPersonAuthentication();
+    }
 }
 
 //Devon code ends

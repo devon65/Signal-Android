@@ -1,7 +1,7 @@
-//Devon newWarn code starts
 package org.thoughtcrime.securesms;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,8 +10,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
 
-public class PrivacyCheckUnverifiedFragment extends Fragment {
+
+public class PrivacyCheckVeryUnverifiedFragment extends Fragment {
 
     public static final String REMOTE_ADDRESS  = "remote_address";
     public static final String REMOTE_NUMBER   = "remote_number";
@@ -20,19 +22,16 @@ public class PrivacyCheckUnverifiedFragment extends Fragment {
     public static final String LOCAL_IDENTITY  = "local_identity";
     public static final String LOCAL_NUMBER    = "local_number";
 
-    private TextView notNowButton;
     private TextView inPersonButton;
     private TextView phoneCallButton;
-    private TextView youAndFriendText;
-    private TextView ifTheyMatchText;
-    private TextView toCompareIdentifiersText;
+    private TextView titleText;
+    private TextView completedPrivacyCheck;
 
     private String recipientName;
 
-    private OnUnverifiedInteractionListener mListener;
+    private OnVeryUnverifiedInteractionListener mListener;
 
-    public PrivacyCheckUnverifiedFragment() {}
-
+    public PrivacyCheckVeryUnverifiedFragment() {}
 
 
     @Override
@@ -46,17 +45,9 @@ public class PrivacyCheckUnverifiedFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_privacy_check_unverified, container, false);
+        View view = inflater.inflate(R.layout.fragment_privacy_check_very_unverified, container, false);
 
-        notNowButton = (TextView) view.findViewById(R.id.privacy_check_unverified_not_now);
-        notNowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                notNowClicked();
-            }
-        });
-
-        inPersonButton = (TextView) view.findViewById(R.id.privacy_check_unverified_in_person);
+        inPersonButton = (TextView) view.findViewById(R.id.privacy_check_very_unverified_in_person);
         inPersonButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,7 +55,7 @@ public class PrivacyCheckUnverifiedFragment extends Fragment {
             }
         });
 
-        phoneCallButton = (TextView) view.findViewById(R.id.privacy_check_unverified_phone_call);
+        phoneCallButton = (TextView) view.findViewById(R.id.privacy_check_very_unverified_phone_call);
         phoneCallButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -72,38 +63,30 @@ public class PrivacyCheckUnverifiedFragment extends Fragment {
             }
         });
 
-        youAndFriendText = (TextView) view.findViewById(R.id.privacy_check_unverified_you_and_friend_text);
-        youAndFriendText.setText(String.format(getContext().getString(R.string.privacy_check_unverified_screen_You_and_s_can_compare_your_copy_of_each_others_identifiers), recipientName));
+        titleText = (TextView) view.findViewById(R.id.privacy_check_very_unverified_title_text);
+        titleText.setText(String.format(getContext().getString(R.string.privacy_check_very_unverified_screen_Do_not_communicate_any_sensitive_information),recipientName));
 
-        ifTheyMatchText = (TextView) view.findViewById(R.id.privacy_check_unverified_if_they_match_text);
-        ifTheyMatchText.setText(String.format(getContext().getString(R.string.privacy_check_unverified_screen_If_they_match), recipientName));
-
-        toCompareIdentifiersText = (TextView) view.findViewById(R.id.privacy_check_unverified_to_compare_identifiers_text);
-        toCompareIdentifiersText.setText(String.format(getContext().getString(R.string.privacy_check_unverified_screen_To_compare_your_identifier_with_s), recipientName));
+        completedPrivacyCheck = (TextView) view.findViewById(R.id.privacy_check_very_unverified_you_have_completed_the_privacy_check);
+        completedPrivacyCheck.setText(String.format(getContext().getString(R.string.privacy_check_very_unverified_screen_You_have_completed_the_privacy_check), recipientName));
 
         return view;
     }
 
-    private void notNowClicked(){
-        getActivity().finish();
-    }
-
     private void inPersonClicked(){
-        Toast.makeText(getContext(), "So Sexy!", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "Whoopee!", Toast.LENGTH_LONG).show();
         mListener.onInPersonAuthentication();
     }
 
     private void phoneCallClicked(){
-        Toast.makeText(getContext(), "Smashing!", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "Yeahooo!", Toast.LENGTH_LONG).show();
         mListener.onPhoneCallAuthentication();
     }
-
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnUnverifiedInteractionListener) {
-            mListener = (OnUnverifiedInteractionListener) context;
+        if (context instanceof OnVeryUnverifiedInteractionListener) {
+            mListener = (OnVeryUnverifiedInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -116,10 +99,9 @@ public class PrivacyCheckUnverifiedFragment extends Fragment {
         mListener = null;
     }
 
-    public interface OnUnverifiedInteractionListener {
+
+    public interface OnVeryUnverifiedInteractionListener {
         void onInPersonAuthentication();
         void onPhoneCallAuthentication();
     }
 }
-
-//Devon code ends

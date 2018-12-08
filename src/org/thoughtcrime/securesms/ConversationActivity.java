@@ -693,8 +693,6 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
 
         Intent intent = new Intent(getApplicationContext(), PrivacyCheckActivity.class);
         intent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, recipient.getAddress());
-        intent.putExtra(PrivacyCheckActivity.IDENTITY_EXTRA, new IdentityKeyParcelable(remoteIdentity.getIdentityKey()));
-        intent.putExtra(PrivacyCheckActivity.VERIFIED_EXTRA, remoteIdentity.getVerifiedStatus() == IdentityDatabase.VerifiedStatus.VERIFIED);
         getApplicationContext().startActivity(intent);
       }
 
@@ -710,7 +708,11 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     if (shieldMenuIcon != null) {
       if (identityRecords.isVerified()) {
         shieldMenuIcon.setIcon(R.drawable.ic_devon_header_verified_shield);
-      } else {
+      }
+      else if(identityRecords.isVeryUnverified()){
+        shieldMenuIcon.setIcon(R.drawable.ic_devon_header_very_unverified_shield);
+      }
+      else {
         shieldMenuIcon.setIcon(R.drawable.ic_devon_header_unverified_shield);
       }
     }
