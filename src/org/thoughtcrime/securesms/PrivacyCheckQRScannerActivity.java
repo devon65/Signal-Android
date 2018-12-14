@@ -245,6 +245,7 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
         private ScanningThread scanningThread;
         private ScanListener   scanListener;
 
+
         // Elham code starts
 
         public void setScannedFingerprint(String scanned) {
@@ -262,21 +263,19 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
 
                     animateVerifiedSuccess();
 
-                    // Return the user to the conversation (exit the authentication ceremony)
-                    DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                getActivity().onBackPressed();
-                                break;
-                        }
-                    };
+                    //Devon newWarn code starts
+                    //Displays the PrivacyCheckSuccessDialog upon successful scan
 
-                    // Prompt the user that the verification was successful
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("Your conversation is secure now.")
-                            .setPositiveButton("OK", dialogClickListener)
-                            .setTitle("Congratulations!")
-                            .show();
+                    PrivacyCheckSuccessDialog successDialog = new PrivacyCheckSuccessDialog(getContext(), recipient.getName(), PrivacyCheckQRScannerActivity.class.getSimpleName());
+                    successDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            onResume();
+                        }
+                    });
+                    successDialog.show();
+
+                    //Devon code ends
 
                 } else {
                     // If the QR code scanning was not successful
@@ -296,27 +295,24 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
 
                     animateVerifiedFailure();
 
-                    DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                // Retry button clicked
-                                onResume();
-                                break;
+                    //Devon newWarn code starts
+                    //displaying the PrivacyCheckFailureDialog
 
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                // Cancel button clicked
-                                getActivity().onBackPressed();
-                                break;
+                    new PrivacyCheckFailureDialog(getContext(), recipient.getName(),
+                            PrivacyCheckQRScannerActivity.class.getSimpleName(),
+                            new PrivacyCheckFailureDialog.PrivacyCheckFailureListener() {
+                        @Override
+                        public void onMatchFailedTryAgainClicked() {
+                            onResume();
                         }
-                    };
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("This doesn't look like your safety number with "
-                            + recipient.getName() + ". Are you verifying the correct contact?")
-                            .setPositiveButton("Retry", dialogClickListener)
-                            .setNegativeButton("Cancel", dialogClickListener)
-                            .setTitle("Failed to verify Safety Number!")
-                            .show();
+                        @Override
+                        public void onMatchFailedImSureClicked() {
+                            getActivity().finish();
+                        }
+                    }).show();
+
+                    //Devon code ends
 
                 }
             } catch (FingerprintVersionMismatchException e) {

@@ -1471,13 +1471,13 @@
 
 
     <!-- privacy check no match dialog -->
-    <string name="privacy_check_no_match_dialog_title">Warning</string>
-    <string name="privacy_check_no_match_dialog_You_have_found_that_the_identifiers_do_not_match">You have found that the identifiers do not match. You should double check that they do not match.</string>
-    <string name="privacy_check_no_match_dialog_The_identifiers_do_not_match">The identifiers do not match. You should double check you are scanning %s\'s QR code.</string>
-    <string name="privacy_check_no_match_dialog_If_they_truly_do_not_match">If they truly do not match, this means that someone is likely able to read and listen to your conversation. We recommend that you do not communicate any sensitive information.</string>
-    <string name="privacy_check_no_match_dialog_Send_a_report_to_Signal">Send a report to Signal</string>
-    <string name="privacy_check_no_match_dialog_Try_Again">Try Again</string>
-    <string name="privacy_check_no_match_dialog_Okay">Okay</string>
+    <string name="privacy_check_failure_dialog_title">Warning</string>
+    <string name="privacy_check_failure_dialog_You_have_found_that_your_identifiers_with_s_do_not_match">You have found that your identifiers with %s do not match. You should double check that they do not match.</string>
+    <string name="privacy_check_failure_dialog_The_identifiers_do_not_match">The identifiers do not match. You should double check you are scanning %s\'s QR code.</string>
+    <string name="privacy_check_failure_dialog_If_youre_sure_you_compared_s_identifier">If you\'re sure you compared %s\'s identifier, this means that someone is likely able to read and listen to your conversation. We recommend that you do not communicate any sensitive information.</string>
+    <string name="privacy_check_failure_dialog_Send_a_report_to_Signal">Send a report to Signal</string>
+    <string name="privacy_check_failure_dialog_Try_Again">Try Again</string>
+    <string name="privacy_check_failure_dialog_Im_sure">I\'m Sure</string>
 
 
     <!-- privacy check privacy verified dialog -->

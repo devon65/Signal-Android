@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Devon newWarn code starts -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="20dp"
+    android:paddingRight="25dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/privacy_check_success_congratulations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:justificationMode="inter_word"
+        android:textColor="@color/gray78"
+        android:textSize="17dp"
+        android:text="@string/privacy_check_privacy_verified_dialog_Congratulations" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="15dp"
+        android:justificationMode="inter_word"
+        android:textColor="@color/gray78"
+        android:textSize="17dp"
+        android:text="@string/privacy_check_privacy_verified_dialog_This_means_no_one_not_even_signal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dp"
+            app:srcCompat="@drawable/ic_devon_privacy_check_verified_dialog_shield"/>
+
+        <TextView
+            android:id="@+id/privacy_check_success_marked_as_verified"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:justificationMode="inter_word"
+            android:textColor="@color/gray78"
+            android:textSize="17dp"
+            android:text="@string/privacy_check_privacy_verified_dialog_S_has_been_marked_as_verified"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+<!-- Devon code ends -->

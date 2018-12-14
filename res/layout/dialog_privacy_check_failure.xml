@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Devon newWarn code starts -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="20dp"
+    android:paddingRight="25dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/privacy_check_failure_identifiers_do_not_match"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:justificationMode="inter_word"
+        android:textColor="@color/gray78"
+        android:textSize="17dp"
+        android:text="@string/privacy_check_failure_dialog_The_identifiers_do_not_match"/>
+
+    <TextView
+        android:id="@+id/privacy_check_failure_if_youre_sure"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp"
+        android:textColor="@color/gray78"
+        android:textSize="17dp"
+        android:justificationMode="inter_word"
+        android:text="@string/privacy_check_failure_dialog_If_youre_sure_you_compared_s_identifier" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:checked="true"
+            android:textColor="@color/blue_700"
+            android:textSize="17dp"
+            android:text="@string/privacy_check_failure_dialog_Send_a_report_to_Signal"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+<!-- Devon code ends -->

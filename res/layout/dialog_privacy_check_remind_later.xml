@@ -14,8 +14,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:justificationMode="inter_word"
-        android:text="@string/privacy_check_remind_later_dialog_you_can_keep_sending_messages"
-        android:textAppearance="@style/ComposeEditText" />
+        android:textColor="@color/gray78"
+        android:textSize="17dp"
+        android:text="@string/privacy_check_remind_later_dialog_you_can_keep_sending_messages" />
 
 
     <LinearLayout
@@ -38,8 +39,9 @@
             android:id="@+id/privacy_check_remind_later_tap_this_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/privacy_check_remind_later_dialog_tap_this_icon"
-            android:textAppearance="@style/ComposeEditText" />
+            android:textColor="@color/gray78"
+            android:textSize="17dp"
+            android:text="@string/privacy_check_remind_later_dialog_tap_this_icon" />
 
     </LinearLayout>
 
@@ -49,6 +51,8 @@
         android:layout_height="wrap_content"
         android:checked="true"
         android:text="@string/privacy_check_remind_later_dialog_remind_me_later"
+        android:textColor="@color/blue_700"
+        android:textSize="17dp"
         android:textAppearance="@style/NotificationText" />
 
 </LinearLayout>
