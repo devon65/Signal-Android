@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Cyrus new-warning code start-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PhoneCallPrivacyCheckFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <!--
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:padding="20dp"
+                  android:gravity="center_horizontal"
+                  android:background="?verification_ba-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="40dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/phone_call_screen_Privacy_Check"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:layout_margin="5dp"
+            android:padding="10dp"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/phone_call_screen_These_are_the_device_identifiers_for_you_and_s"
+            android:gravity="center|left"
+            android:justificationMode="inter_word"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="10dp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/phone_call_screen_Have_s_read_their_identifier_to_you"
+            android:gravity="center|left"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="19dp"
+            android:padding="10dp"
+
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/phone_call_screen_Your_device_identifier"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:padding="10dp"
+
+            />
+        <!--need to get code for fingerprint from this file: VerifyIdentityActivity, also has
+        animation coded for me.-->
+
+        <TableLayout android:id="@+id/number_table"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TableRow android:gravity="center_horizontal"
+                android:clickable="false"
+                android:focusable="false">
+
+                <TextView android:id="@+id/code_first"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/IdentityKey"
+                    tools:text="229"/>
+
+                <TextView android:id="@+id/code_second"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="569"/>
+
+                <TextView android:id="@+id/code_third"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="427"/>
+
+                <TextView android:id="@+id/code_fourth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="200"/>
+
+                <TextView android:id="@+id/code_fifth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="200"/>
+            </TableRow>
+
+            <TableRow android:gravity="center_horizontal">
+                <!--<TextView android:id="@+id/code_fifth"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--style="@style/IdentityKey"-->
+                    <!--tools:text="34431"/>-->
+
+                <TextView android:id="@+id/code_sixth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/IdentityKey"
+                    tools:text="249"/>
+
+                <TextView android:id="@+id/code_seventh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="585"/>
+
+                <TextView android:id="@+id/code_eighth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="241"/>
+
+                <TextView android:id="@+id/code_ninth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="002"/>
+
+                <TextView android:id="@+id/code_tenth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="349"/>
+
+            </TableRow>
+
+            <!--<TableRow android:gravity="center_horizontal">-->
+
+
+                <!---->
+
+                <!--<TextView android:id="@+id/code_eleventh"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_marginLeft="20dp"-->
+                    <!--style="@style/IdentityKey"-->
+                    <!--tools:text="32440"/>-->
+
+                <!--<TextView android:id="@+id/code_twelth"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_marginLeft="20dp"-->
+                    <!--style="@style/IdentityKey"-->
+                    <!--tools:text="15774"/>-->
+            <!--</TableRow>-->
+
+        </TableLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/phone_call_screen_s_device_identifier"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:padding="10dp"
+
+            />
+
+        <TableLayout android:id="@+id/other_number_table"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TableRow android:gravity="center_horizontal"
+                android:clickable="false"
+                android:focusable="false">
+
+                <TextView android:id="@+id/other_code_first"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/IdentityKey"
+                    tools:text="934"/>
+
+                <TextView android:id="@+id/other_code_second"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="944"/>
+
+                <TextView android:id="@+id/other_code_third"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="738"/>
+
+                <TextView android:id="@+id/other_code_fourth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="038"/>
+
+                <TextView android:id="@+id/other_code_fifth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="431"/>
+            </TableRow>
+
+            <TableRow android:gravity="center_horizontal">
+
+
+                <TextView android:id="@+id/other_code_sixth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/IdentityKey"
+                    tools:text="922"/>
+
+                <TextView android:id="@+id/other_code_seventh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="594"/>
+
+                <TextView android:id="@+id/other_code_eighth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="109"/>
+
+                <TextView android:id="@+id/other_code_ninth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="257"/>
+
+                <TextView android:id="@+id/other_code_tenth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    style="@style/IdentityKey"
+                    tools:text="956"/>
+
+            </TableRow>
+
+        </TableLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Match"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:background="#2090ea"
+            android:textColor="@color/white"
+            />
+        <!--
+      private String[] getSegments(Fingerprint fingerprint, int segmentCount) {
+      String[] segments = new String[segmentCount];
+      String   digits   = fingerprint.getDisplayableFingerprint().getDisplayText();
+      int      partSize = digits.length() / segmentCount;
+
+      for (int i=0;i<segmentCount;i++) {
+        segments[i] = digits.substring(i * partSize, (i * partSize) + partSize);
+      }
+
+      return segments;
+    }-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="20dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+<!--End Cyrus new-warning code-->
+</FrameLayout>

@@ -34,12 +34,14 @@
                     android:animateLayoutChanges="true">
 
         <!-- Contact photo for call_info_1 -->
+        <!-- cyrus comment I think this is where the picture frame starts, I want to make this
+        a fragment, so that i can swap it out.-->
         <FrameLayout android:id="@+id/image_container"
                      android:layout_below="@+id/call_banner_1"
                      android:gravity="top|center_horizontal"
                      android:layout_width="match_parent"
                      android:layout_height="match_parent">
-
+            <!--Should I put the fragment here?  SHould fragment contain all of the frame layout?-->
             <ImageView android:id="@+id/photo"
                        android:layout_width="match_parent"
                        android:layout_height="match_parent"
