@@ -3,6 +3,7 @@ package org.thoughtcrime.securesms.components.webrtc;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -18,6 +19,7 @@ import com.tomergoldst.tooltips.ToolTipsManager;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.AccessibleToggleButton;
+import org.thoughtcrime.securesms.database.IdentityDatabase;
 import org.thoughtcrime.securesms.util.ServiceUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.webrtc.CameraState;
@@ -31,6 +33,14 @@ public class WebRtcCallControls extends LinearLayout {
   private AccessibleToggleButton speakerButton;
   private AccessibleToggleButton bluetoothButton;
   private AccessibleToggleButton cameraFlipButton;
+
+  //Devon newWarn code starts
+  //shield button to display device identifiers
+
+  private AccessibleToggleButton shieldButton;
+
+  //Devon code ends
+
   private boolean                cameraFlipAvailable;
 
   @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -64,6 +74,14 @@ public class WebRtcCallControls extends LinearLayout {
     this.audioMuteButton = ViewUtil.findById(this, R.id.muteButton);
     this.videoMuteButton = ViewUtil.findById(this, R.id.video_mute_button);
     this.cameraFlipButton = ViewUtil.findById(this, R.id.camera_flip_button);
+
+    //Devon newWarn code starts
+    //initialize shield button
+
+    this.shieldButton     = ViewUtil.findById(this, R.id.video_shield_button);
+
+    //Devon code ends
+
   }
 
   public void setAudioMuteButtonListener(final MuteButtonListener listener) {
@@ -82,6 +100,18 @@ public class WebRtcCallControls extends LinearLayout {
         boolean videoMuted = !isChecked;
         listener.onToggle(videoMuted);
         cameraFlipButton.setVisibility(!videoMuted && cameraFlipAvailable ? View.VISIBLE : View.GONE);
+      }
+    });
+  }
+
+  //Devon newWarn code starts
+  //Shield device identifiers button for phonecall
+
+  public void setShieldButtonListener(final ShieldButtonListener listener){
+    shieldButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        listener.onToggle(b);
       }
     });
   }
@@ -155,6 +185,23 @@ public class WebRtcCallControls extends LinearLayout {
     cameraFlipButton.setChecked(enabled, false);
   }
 
+  //Devon newWarn code starts
+
+  public void setShieldButtonEnabled(boolean enabled, int verifiedStatus) {
+
+    if (verifiedStatus == IdentityDatabase.VerifiedStatus.VERIFIED.toInt()) {
+      shieldButton.setBackgroundResource(R.drawable.webrtc_devon_verified_shield_button);
+    }
+    else if (verifiedStatus == IdentityDatabase.VerifiedStatus.VERYUNVERIFIED.toInt()){
+      shieldButton.setBackgroundResource(R.drawable.webrtc_devon_very_unverified_shield_button);
+    }
+    else{
+      shieldButton.setBackgroundResource(R.drawable.webrtc_devon_unverified_shield_button);
+    }
+
+    shieldButton.setChecked(enabled, true);
+  }
+
   public void setCameraFlipAvailable(boolean available) {
     cameraFlipAvailable = available;
   }
@@ -173,6 +220,12 @@ public class WebRtcCallControls extends LinearLayout {
     setControlEnabled(videoMuteButton, enabled);
     setControlEnabled(cameraFlipButton, enabled);
     setControlEnabled(audioMuteButton, enabled);
+
+    //Devon newWarn code starts
+
+    setControlEnabled(shieldButton, enabled);
+
+    //Devon code ends
   }
 
   private void setControlEnabled(@NonNull View view, boolean enabled) {
@@ -204,6 +257,10 @@ public class WebRtcCallControls extends LinearLayout {
 
   public static interface CameraFlipButtonListener {
     public void onToggle();
+  }
+
+  public static interface ShieldButtonListener {
+    public void onToggle(boolean isShield);
   }
 
   public static interface SpeakerButtonListener {

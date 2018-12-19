@@ -36,6 +36,13 @@ public class VoiceCallShare extends Activity {
             startService(serviceIntent);
 
             Intent activityIntent = new Intent(this, WebRtcCallActivity.class);
+
+            //Devon newWarn code starts
+
+            activityIntent.putExtra(WebRtcCallActivity.REMOTE_ADDRESS_EXTRA, address);
+
+            //Devon code ends
+
             activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(activityIntent);
           }

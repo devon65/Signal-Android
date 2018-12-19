@@ -1,9 +1,7 @@
 package org.thoughtcrime.securesms.webrtc;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.DrawableRes;
@@ -13,10 +11,10 @@ import android.support.v4.app.NotificationCompat;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.WebRtcCallActivity;
+import org.thoughtcrime.securesms.database.Address;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.service.WebRtcCallService;
-import org.thoughtcrime.securesms.util.ServiceUtil;
 
 /**
  * Manages the state of the WebRtc items in the Android notification bar.
@@ -39,6 +37,12 @@ public class CallNotificationBuilder {
     Intent contentIntent = new Intent(context, WebRtcCallActivity.class);
     contentIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
+    //Devon newWarn code starts
+
+    contentIntent.putExtra(WebRtcCallActivity.REMOTE_ADDRESS_EXTRA, recipient.getAddress());
+
+    //Devon code ends
+
     PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, 0);
 
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NotificationChannels.CALLS)
@@ -53,7 +57,7 @@ public class CallNotificationBuilder {
     } else if (type == TYPE_INCOMING_RINGING) {
       builder.setContentText(context.getString(R.string.NotificationBarManager__incoming_signal_call));
       builder.addAction(getServiceNotificationAction(context, WebRtcCallService.ACTION_DENY_CALL, R.drawable.ic_close_grey600_32dp,   R.string.NotificationBarManager__deny_call));
-      builder.addAction(getActivityNotificationAction(context, WebRtcCallActivity.ANSWER_ACTION, R.drawable.ic_phone_grey600_32dp, R.string.NotificationBarManager__answer_call));
+      builder.addAction(getActivityNotificationAction(context, WebRtcCallActivity.ANSWER_ACTION, R.drawable.ic_phone_grey600_32dp, R.string.NotificationBarManager__answer_call, recipient.getAddress()));
     } else if (type == TYPE_OUTGOING_RINGING) {
       builder.setContentText(context.getString(R.string.NotificationBarManager__establishing_signal_call));
       builder.addAction(getServiceNotificationAction(context, WebRtcCallService.ACTION_LOCAL_HANGUP, R.drawable.ic_call_end_grey600_32dp, R.string.NotificationBarManager__cancel_call));
@@ -74,11 +78,19 @@ public class CallNotificationBuilder {
     return new NotificationCompat.Action(iconResId, context.getString(titleResId), pendingIntent);
   }
 
+  //Devon newWarn code starts: added last argument to this function so the app can extract the
+  //remote IdentityKey while inside the phonecall
   private static NotificationCompat.Action getActivityNotificationAction(@NonNull Context context, @NonNull String action,
-                                                                         @DrawableRes int iconResId, @StringRes int titleResId)
+                                                                         @DrawableRes int iconResId, @StringRes int titleResId, @NonNull Address remoteAddress)
   {
     Intent intent = new Intent(context, WebRtcCallActivity.class);
     intent.setAction(action);
+
+    //Devon newWarn code starts
+
+    intent.putExtra(WebRtcCallActivity.REMOTE_ADDRESS_EXTRA, remoteAddress);
+
+    //Devon code ends
 
     PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 

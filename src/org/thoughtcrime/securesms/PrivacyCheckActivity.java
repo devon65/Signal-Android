@@ -19,6 +19,7 @@ import org.thoughtcrime.securesms.crypto.IdentityKeyUtil;
 import org.thoughtcrime.securesms.database.Address;
 import org.thoughtcrime.securesms.database.IdentityDatabase;
 import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.IdentityUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.concurrent.ListenableFuture;
@@ -84,7 +85,7 @@ public class PrivacyCheckActivity extends AppCompatActivity
 
             @Override
             public void onFailure(ExecutionException e) {
-                Toast.makeText(getApplicationContext(), "Congratulations! You have broken the study! (Friend\'s key not found)", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.toast_you_have_broken_the_study_key_not_found, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -173,8 +174,13 @@ public class PrivacyCheckActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPhoneCallAuthentication() {
+    public void onViewIdentifiers() {
+        new PrivacyCheckViewIdentifiersDialog(this, recipient, IdentityKeyUtil.getIdentityKey(this), remoteIdentityKey).show();
+    }
 
+    @Override
+    public void onPhoneCallAuthentication() {
+        CommunicationActions.startVoiceCall(this, this.recipient);
     }
 }
 

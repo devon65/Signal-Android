@@ -152,6 +152,15 @@ public class WebRtcCallScreen extends FrameLayout implements RecipientModifiedLi
     this.controls.setAudioMuteButtonListener(listener);
   }
 
+  //Devon newWarn code starts
+  //shield display device identifiers set listener
+
+  public void setShieldButtonListener(WebRtcCallControls.ShieldButtonListener listener) {
+    this.controls.setShieldButtonListener(listener);
+  }
+
+  //Devon code ends
+
   public void setVideoMuteButtonListener(WebRtcCallControls.MuteButtonListener listener) {
     this.controls.setVideoMuteButtonListener(listener);
   }
@@ -187,6 +196,12 @@ public class WebRtcCallScreen extends FrameLayout implements RecipientModifiedLi
 
   public void setControlsEnabled(boolean enabled) {
     this.controls.setControlsEnabled(enabled);
+  }
+
+  //Devon newWarn code starts
+
+  public void setShieldButtonEnabled(boolean enabled, int verifiedStatus) {
+    this.controls.setShieldButtonEnabled(enabled, verifiedStatus);
   }
 
   public void setLocalVideoState(@NonNull CameraState cameraState) {

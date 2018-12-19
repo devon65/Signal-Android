@@ -18,7 +18,6 @@
 package org.thoughtcrime.securesms;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -27,11 +26,23 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+
+import org.thoughtcrime.securesms.crypto.IdentityKeyParcelable;
+import org.thoughtcrime.securesms.crypto.IdentityKeyUtil;
+import org.thoughtcrime.securesms.database.Address;
+import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.database.IdentityDatabase;
 import org.thoughtcrime.securesms.logging.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -46,15 +57,22 @@ import org.thoughtcrime.securesms.push.SignalServiceNetworkAccess;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.service.MessageRetrievalService;
 import org.thoughtcrime.securesms.service.WebRtcCallService;
+import org.thoughtcrime.securesms.util.IdentityUtil;
 import org.thoughtcrime.securesms.util.ServiceUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.ViewUtil;
+import org.thoughtcrime.securesms.util.concurrent.ListenableFuture;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.SignalProtocolAddress;
+import org.whispersystems.libsignal.util.guava.Optional;
+
+import java.util.concurrent.ExecutionException;
 
 import static org.whispersystems.libsignal.SessionCipher.SESSION_LOCK;
 
-public class WebRtcCallActivity extends Activity {
+//Devon newWarn code change:
+//changed the WebRtcCallActivity extension to extend AppCompatActivity and implement PhoneCallPrivacyCheckFragment.phoneCallFragmentListener instead of just Activity
+public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPrivacyCheckFragment.PhoneCallFragmentListener{ //Activity {
 
   private static final String TAG = WebRtcCallActivity.class.getSimpleName();
 
@@ -64,6 +82,21 @@ public class WebRtcCallActivity extends Activity {
   public static final String ANSWER_ACTION   = WebRtcCallActivity.class.getCanonicalName() + ".ANSWER_ACTION";
   public static final String DENY_ACTION     = WebRtcCallActivity.class.getCanonicalName() + ".DENY_ACTION";
   public static final String END_CALL_ACTION = WebRtcCallActivity.class.getCanonicalName() + ".END_CALL_ACTION";
+
+  //Devon newWarn code starts
+  //This static string is to find out whether the phone call was accessed through the
+  //PrivacyCheckActivity or through something else
+
+  public static final String REMOTE_ADDRESS_EXTRA = "address";
+  public static final String ACTIVITY_CALLER = "activity caller";
+
+  ImageView profilePicture;
+  Recipient recipient;
+  int verifiedStatus = IdentityDatabase.VerifiedStatus.DEFAULT.toInt();
+  IdentityKey remoteIdentityKey;
+
+
+  //Devon code ends
 
   private WebRtcCallScreen           callScreen;
   private SignalServiceNetworkAccess networkAccess;
@@ -77,12 +110,126 @@ public class WebRtcCallActivity extends Activity {
 
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     setContentView(R.layout.webrtc_call_activity);
-
+    profilePicture = findViewById(R.id.photo);
     setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
     initializeResources();
+
+
+    //Devon newWarn code starts
+    //hide action bar to make room for identifiers fragment
+    getSupportActionBar().hide();
+    //Devon code ends
+
   }
 
+  //Devon newWarn code starts
+  //display and hide device identifiers functions
+
+  private void showDeviceIdentifiers(){
+    profilePicture.setVisibility(View.INVISIBLE);
+
+    Fragment privacyCheckFrag = new PhoneCallPrivacyCheckFragment();
+    Bundle extras = new Bundle();
+    extras.putParcelable(PhoneCallPrivacyCheckFragment.REMOTE_ADDRESS, getIntent().getParcelableExtra(REMOTE_ADDRESS_EXTRA));
+    extras.putParcelable(PhoneCallPrivacyCheckFragment.REMOTE_IDENTITY, new IdentityKeyParcelable(remoteIdentityKey));
+    extras.putString(PhoneCallPrivacyCheckFragment.REMOTE_NUMBER, recipient.getAddress().toPhoneString());
+    extras.putParcelable(PhoneCallPrivacyCheckFragment.LOCAL_IDENTITY, new IdentityKeyParcelable(IdentityKeyUtil.getIdentityKey(this)));
+    extras.putString(PhoneCallPrivacyCheckFragment.LOCAL_NUMBER, TextSecurePreferences.getLocalNumber(this));
+    privacyCheckFrag.setArguments(extras);
+
+    getSupportFragmentManager().beginTransaction()
+            .replace(R.id.phone_call_privacy_check_fragment_container, privacyCheckFrag)
+            .commit();
+  }
+
+  private void hideDeviceIdentifiers(){
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    PhoneCallPrivacyCheckFragment privacyCheckFragment = (PhoneCallPrivacyCheckFragment) fragmentManager
+            .findFragmentById(R.id.phone_call_privacy_check_fragment_container);
+
+    if (privacyCheckFragment != null) {
+      profilePicture.setVisibility(View.VISIBLE);
+      FragmentTransaction fragmentTransaction =
+              fragmentManager.beginTransaction();
+      fragmentTransaction.remove(privacyCheckFragment).commit();
+    }
+  }
+
+  private void setUpShieldButton(){
+    this.recipient = Recipient.from(this, (Address)getIntent().getParcelableExtra(REMOTE_ADDRESS_EXTRA), true);
+    IdentityUtil.getRemoteIdentityKey(this, this.recipient).addListener(new ListenableFuture.Listener<Optional<IdentityDatabase.IdentityRecord>>() {
+      @Override
+      public void onSuccess(Optional<IdentityDatabase.IdentityRecord> result) {
+        IdentityDatabase.IdentityRecord remoteIdentity = result.get();
+        remoteIdentityKey = remoteIdentity.getIdentityKey();
+        verifiedStatus = remoteIdentity.getVerifiedStatus().toInt();
+
+        //adds PhoneCallPrivacyCheckFragment to screen if accessed through the PrivacyCheckActivity
+        String activityCaller = getIntent().getStringExtra(ACTIVITY_CALLER);
+        if (activityCaller != null && activityCaller.equals(PrivacyCheckActivity.class.getSimpleName())){
+          callScreen.setShieldButtonEnabled(true, verifiedStatus);
+        }
+      }
+
+      @Override
+      public void onFailure(ExecutionException e) {
+        Toast.makeText(getApplicationContext(), R.string.toast_you_have_broken_the_study_key_not_found, Toast.LENGTH_LONG).show();
+      }
+    });
+  }
+
+  //Devon newWarn comment: this function brought to you by the VerifyIdentityActivity.java
+  @Override
+  public void onMatchButtonClicked() {
+    android.util.Log.w(TAG, "Saving identity phone call data: " + this.recipient.getAddress());
+    DatabaseFactory.getIdentityDatabase(this)
+            .saveIdentity(this.recipient.getAddress(),
+                    remoteIdentityKey,
+                    IdentityDatabase.VerifiedStatus.VERIFIED, false,
+                    System.currentTimeMillis(), true);
+
+    //animateVerifiedSuccess();
+    verifiedStatus = IdentityDatabase.VerifiedStatus.VERIFIED.toInt();
+    this.callScreen.setShieldButtonEnabled(true, verifiedStatus);
+
+    PrivacyCheckSuccessDialog successDialog = new PrivacyCheckSuccessDialog(this, recipient.getName(), WebRtcCallActivity.class.getSimpleName());
+    successDialog.setOnDismissListener((DialogInterface dialogInterface) -> {
+
+    });
+    successDialog.show();
+  }
+
+  //Devon newWarn comment: this function brought to you by the VerifyIdentityActivity.java
+  @Override
+  public void onNoMatchButtonClicked() {
+    android.util.Log.w(TAG, "Saving identity phone call data: " + this.recipient.getAddress());
+    DatabaseFactory.getIdentityDatabase(this)
+            .saveIdentity(this.recipient.getAddress(),
+                    remoteIdentityKey,
+                    IdentityDatabase.VerifiedStatus.VERYUNVERIFIED, false,
+                    System.currentTimeMillis(), true);
+
+    //animateVerifiedFailure();
+    verifiedStatus = IdentityDatabase.VerifiedStatus.VERYUNVERIFIED.toInt();
+    WebRtcCallActivity.this.callScreen.setShieldButtonEnabled(true, verifiedStatus);
+
+    //displaying the PrivacyCheckFailureDialog
+    new PrivacyCheckFailureDialog(this, recipient.getName(),WebRtcCallActivity.class.getSimpleName(),
+            new PrivacyCheckFailureDialog.PrivacyCheckFailureListener() {
+              @Override
+              public void onMatchFailedTryAgainClicked() {
+
+              }
+
+              @Override
+              public void onMatchFailedImSureClicked() {
+
+              }
+            }).show();
+  }
+
+  //Devon code ends
 
   @Override
   public void onResume() {
@@ -142,6 +289,14 @@ public class WebRtcCallActivity extends Activity {
     callScreen.setCameraFlipButtonListener(new CameraFlipButtonListener());
     callScreen.setSpeakerButtonListener(new SpeakerButtonListener());
     callScreen.setBluetoothButtonListener(new BluetoothButtonListener());
+
+    //Devon newWarn code starts
+    //set shield button listener
+
+    callScreen.setShieldButtonListener(new ShieldButtonListener());
+    setUpShieldButton();
+
+    //Devon newWarn code ends
 
     networkAccess = new SignalServiceNetworkAccess(this);
   }
@@ -371,6 +526,19 @@ public class WebRtcCallActivity extends Activity {
       if (isSpeaker && audioManager.isBluetoothScoOn()) {
         audioManager.stopBluetoothSco();
         audioManager.setBluetoothScoOn(false);
+      }
+    }
+  }
+
+  private class ShieldButtonListener implements WebRtcCallControls.ShieldButtonListener{
+
+    @Override
+    public void onToggle(boolean isShield) {
+      if (isShield){
+        showDeviceIdentifiers();
+      }
+      else {
+        hideDeviceIdentifiers();
       }
     }
   }

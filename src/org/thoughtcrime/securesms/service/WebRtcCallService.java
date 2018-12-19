@@ -1007,6 +1007,13 @@ public class WebRtcCallService extends Service implements InjectableType,
     Intent activityIntent = new Intent();
     activityIntent.setClass(this, WebRtcCallActivity.class);
     activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+    //Devon newWarn code starts
+
+    activityIntent.putExtra(WebRtcCallActivity.REMOTE_ADDRESS_EXTRA, recipient.getAddress());
+
+    //Devon code ends
+
     this.startActivity(activityIntent);
   }
 

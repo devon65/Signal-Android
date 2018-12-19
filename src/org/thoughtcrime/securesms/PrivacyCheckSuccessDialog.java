@@ -38,6 +38,7 @@ public class PrivacyCheckSuccessDialog extends AlertDialog{
         setTitle(R.string.privacy_check_privacy_verified_dialog_title);
         setView(view);
 
+
         if (whichAuthCeremony.equals(PrivacyCheckQRScannerActivity.class.getSimpleName())) {
             setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_privacy_verified_dialog_Back_to_QR_code), new PrivacyCheckSuccessDialog.AcceptListener());
         }

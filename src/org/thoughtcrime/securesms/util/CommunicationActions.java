@@ -14,7 +14,6 @@ import android.text.TextUtils;
 import org.thoughtcrime.securesms.ConversationActivity;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.WebRtcCallActivity;
-import org.thoughtcrime.securesms.contactshare.Contact;
 import org.thoughtcrime.securesms.database.Address;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.permissions.Permissions;
@@ -38,6 +37,15 @@ public class CommunicationActions {
           activity.startService(intent);
 
           Intent activityIntent = new Intent(activity, WebRtcCallActivity.class);
+
+          //Devon newWarn code starts
+          //putting an extra that states who called the WebRtcCallActivity
+
+          activityIntent.putExtra(WebRtcCallActivity.ACTIVITY_CALLER, activity.getClass().getSimpleName());
+          activityIntent.putExtra(WebRtcCallActivity.REMOTE_ADDRESS_EXTRA, recipient.getAddress());
+
+          //Devon code ends
+
           activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
           activity.startActivity(activityIntent);
         })

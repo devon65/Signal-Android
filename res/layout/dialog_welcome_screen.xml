@@ -1,6 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingRight="30dp"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/gray78"
+        android:textSize="17dp"
+        android:layout_marginBottom="20dp"
+        android:text="@string/signal_welcome_dialog_Signal_uses_encryption_to_make_your_conversations_private"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+
+        <ImageView
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="20dp"
+            app:srcCompat="@drawable/ic_devon_privacy_check_unverified_dialog_shield" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/gray78"
+            android:textSize="17dp"
+            android:text="@string/signal_welcome_dialog_Tap_this_icon_to_run_a_privacy_check_at_any_time" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+
+        <ImageView
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="20dp"
+            app:srcCompat="@drawable/ic_devon_privacy_check_verified_dialog_shield" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/gray78"
+            android:textSize="17dp"
+            android:text="@string/signal_welcome_dialog_Your_conversation_is_guaranteed_to_be_private"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="20dp"
+            app:srcCompat="@drawable/ic_warning_light" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/gray78"
+            android:textSize="17dp"
+            android:text="@string/signal_welcome_dialog_We_will_warn_you_if_you_need_to_run_a_privacy_check"/>
+
+    </LinearLayout>
 
 </LinearLayout>

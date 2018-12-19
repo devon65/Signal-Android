@@ -102,6 +102,7 @@ public class TextSecureIdentityKeyStore implements IdentityKeyStore {
 
   @Override
   public boolean isTrustedIdentity(SignalProtocolAddress address, IdentityKey identityKey, Direction direction) {
+    //Devon comment: Add semaphore here
     synchronized (LOCK) {
       IdentityDatabase identityDatabase = DatabaseFactory.getIdentityDatabase(context);
       String           ourNumber        = TextSecurePreferences.getLocalNumber(context);

@@ -1522,8 +1522,6 @@
 
     <!-- privacy check verified screen view identifiers dialog -->
     <string name="privacy_check_verified_screen_view_identifiers_dialog_title">Device Identifiers</string>
-    <string name="privacy_check_verified_screen_view_identifiers_dialog_Your_device_identifier">Your device identifier:</string>
-    <string name="privacy_check_verified_screen_view_identifiers_dialog_s_device_identifier">%s\'s device identifier:</string>
     <string name="privacy_check_verified_screen_view_identifiers_dialog_Done">Done</string>
 
 
@@ -1552,6 +1550,9 @@
     <!-- icon titles -->
     <string name="conversation_shield_menu">Shield Icon</string>
     <string name="title_activity_privacy_check_qrscanner">PrivacyCheckQRScanner</string>
+
+    <!-- Random messages -->
+    <string name="toast_you_have_broken_the_study_key_not_found">Congratulations! You have broken the study! (Friend\'s key not found)</string>
 
 
     <!-- Devon code ends -->

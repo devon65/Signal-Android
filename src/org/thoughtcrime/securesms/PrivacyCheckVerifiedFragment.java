@@ -106,6 +106,7 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
 
     private void viewIdentifiersClicked(){
         Toast.makeText(getContext(), "Oh Baby!", Toast.LENGTH_LONG).show();
+        mListener.onViewIdentifiers();
     }
 
     private static void markContactAsVerifiedClicked(Context context, IdentityKey remoteIdentityKey, Recipient recipient){
@@ -158,6 +159,7 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
     public interface OnMarkContactAsUnverifiedListener {
         void switchToUnverifiedFragment();
         void onInPersonAuthentication();
+        void onViewIdentifiers();
     }
 }
 
