@@ -1,4 +1,5 @@
 //Cyrus new-warning code start
+//Edits by Devon
 package org.thoughtcrime.securesms;
 
 import android.animation.TypeEvaluator;

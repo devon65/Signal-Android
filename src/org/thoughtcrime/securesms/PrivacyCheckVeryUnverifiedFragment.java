@@ -1,3 +1,4 @@
+//Devon newWarn code starts
 package org.thoughtcrime.securesms;
 
 import android.content.Context;
@@ -105,3 +106,5 @@ public class PrivacyCheckVeryUnverifiedFragment extends Fragment {
         void onPhoneCallAuthentication();
     }
 }
+
+//Devon code ends

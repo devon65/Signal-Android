@@ -1,3 +1,5 @@
+//Devon newWarn code starts
+
 package org.thoughtcrime.securesms;
 
 import android.animation.TypeEvaluator;
@@ -23,9 +25,7 @@ import org.whispersystems.libsignal.IdentityKey;
 @SuppressLint("StaticFieldLeak")
 public class PrivacyCheckViewIdentifiersDialog extends AlertDialog {
     private static final String TAG = PrivacyCheckViewIdentifiersDialog.class.getSimpleName();
-    private OnClickListener callback;
 
-    private Recipient    recipient;
     private String       recipientName;
     private String       localNumber;
     private String       remoteNumber;
@@ -42,7 +42,6 @@ public class PrivacyCheckViewIdentifiersDialog extends AlertDialog {
     {
         super(context);
 
-        this.recipient          = recipient;
         this.recipientName      = recipient.toShortString();
         this.localNumber        = TextSecurePreferences.getLocalNumber(context);
         this.remoteNumber       = recipient.getAddress().toPhoneString();
@@ -58,7 +57,7 @@ public class PrivacyCheckViewIdentifiersDialog extends AlertDialog {
         setView(view);
         setTitle(R.string.privacy_check_verified_screen_view_identifiers_dialog_title);
 
-        setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_verified_screen_view_identifiers_dialog_Done), new PrivacyCheckViewIdentifiersDialog.AcceptListener());
+        setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_verified_screen_view_identifiers_dialog_Done), (dialogInterface, i) -> dismiss());
     }
 
     private View setIdentifiersView(View view){
@@ -170,15 +169,6 @@ public class PrivacyCheckViewIdentifiersDialog extends AlertDialog {
         ((TextView)this.findViewById(android.R.id.message))
                 .setMovementMethod(LinkMovementMethod.getInstance());
     }
-
-    public void setCallback(OnClickListener callback) {
-        this.callback = callback;
-    }
-
-    public class AcceptListener implements OnClickListener {
-        @Override
-        public void onClick(DialogInterface dialogInterface, int i) {
-            if (callback != null) callback.onClick(null, 0);
-        }
-    }
 }
+
+//Devon code ends

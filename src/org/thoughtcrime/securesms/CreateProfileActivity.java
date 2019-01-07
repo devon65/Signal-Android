@@ -509,4 +509,15 @@ public class CreateProfileActivity extends BaseActionBarActivity implements Inje
     reveal.setVisibility(View.VISIBLE);
     animation.start();
   }
+
+  //Devon newWarn code starts
+  //Display Welcome Screen
+
+  @Override
+  public void finish() {
+    new WelcomeScreenDialog(this).show();
+    super.finish();
+  }
+
+  //Devon code ends
 }

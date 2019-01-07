@@ -1000,7 +1000,7 @@
     <string name="recipient_preferences__vibrate">Vibrate</string>
     <string name="recipient_preferences__block">Block</string>
     <string name="recipient_preferences__color">Color</string>
-    <string name="recipient_preferences__view_safety_number">View safety number</string>
+    <string name="recipient_preferences__view_safety_number">View privacy check</string>
     <string name="recipient_preferences__chat_settings">Chat settings</string>
     <string name="recipient_preferences__privacy">Privacy</string>
     <string name="recipient_preferences__call_settings">Call settings</string>
@@ -1448,7 +1448,7 @@
     <string name="signal_welcome_dialog_We_will_warn_you_if_you_need_to_run_a_privacy_check">We will warn you if you need to run a privacy check.</string>
     <string name="signal_welcome_dialog_Tap_this_icon_to_run_a_privacy_check_at_any_time">Tap this icon to run a privacy check at any time.</string>
     <string name="signal_welcome_dialog_Your_conversation_is_guaranteed_to_be_private">Your conversation is guaranteed to be private.</string>
-    <string name="signal_welcome_dialog_Start_Messaging">Start Messaging</string>
+    <string name="signal_welcome_dialog_Start_Messaging">START MESSAGING</string>
 
 
     <!-- privacy check remind later dialog -->
@@ -1545,6 +1545,9 @@
 
 
     <!-- ///////////////////// OTHERS ////////////////////// -->
+    
+    <!-- Blue Banner Description -->
+    <string name="blue_banner_Signal_needs_your_help">Signal needs your help to protect the privacy of this conversation. Tap to begin a privacy check.</string>
 
 
     <!-- icon titles -->

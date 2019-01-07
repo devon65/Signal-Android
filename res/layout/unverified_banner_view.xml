@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/reminder_background_normal"
-        android:focusable="true"
-        android:nextFocusRight="@+id/cancel"
-        android:orientation="horizontal"
-        tools:visibility="visible">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/reminder_background_normal"
+    android:focusable="true"
+    android:nextFocusRight="@+id/cancel"
+    android:orientation="horizontal"
+    tools:visibility="visible">
 
-    <ImageView android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
+    <!-- Devon newWarn code starts -->
+    <!-- changed the icon from triangle warning to shield warning -->
+    <ImageView android:layout_width="40dp"
+               android:layout_height="match_parent"
                android:layout_marginLeft="16dp"
-
                android:layout_gravity="center_vertical"
-               android:src="@drawable/ic_alert"/>
+               app:srcCompat="@drawable/ic_devon_header_very_unverified_shield"/>
+               <!-- android:src="@drawable/ic_alert"/> -->
 
+    <!-- changed text source -->
     <TextView android:id="@+id/unverified_text"
               android:layout_width="0dp"
               android:layout_height="wrap_content"
@@ -25,7 +28,10 @@
               android:textSize="16sp"
               android:layout_weight="1"
               android:layout_margin="16dp"
-              tools:text="Your safety number with Jules Bonnot has changed and is no longer verified"/>
+              android:text="@string/blue_banner_Signal_needs_your_help"/>
+
+              <!--tools:text="Your safety number with Jules Bonnot has changed and is no longer verified"/> -->
+    <!-- Devon code ends -->
 
     <ImageButton
             android:id="@+id/cancel"

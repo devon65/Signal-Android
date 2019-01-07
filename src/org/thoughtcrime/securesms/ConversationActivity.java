@@ -54,6 +54,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 
 import org.thoughtcrime.securesms.camera.CameraActivity;
+import org.thoughtcrime.securesms.database.DatabaseContentProviders;
 import org.thoughtcrime.securesms.database.GroupDatabase;
 import org.thoughtcrime.securesms.logging.Log;
 import android.util.Pair;
@@ -385,13 +386,6 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     setActionBarColor(recipient.getColor());
     setBlockedUserState(recipient, isSecureText, isDefaultSms);
     setGroupShareProfileReminder(recipient);
-
-    //Devon newWarn code starts
-
-    setShieldMenuIcon();
-
-    //Devon code ends
-
     calculateCharactersRemaining();
 
     MessageNotifier.setVisibleThread(threadId);
@@ -578,11 +572,12 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
 
       //Devon newWarn code starts
       //This adds the different shields depending on verified status
-
+      //Still has a bug where the shield appears at the very start of a conversation
+      //with a new contact and if clicked, app crashes
       inflater.inflate(R.menu.conversation_shield, menu);
       this.shieldMenuIcon = menu.findItem(R.id.menu_shield);
+      this.shieldMenuIcon.setVisible(false);
       setShieldMenuIcon();
-
       //Devon code ends
 
       if (isSecureText) inflater.inflate(R.menu.conversation_callable_secure, menu);
@@ -685,35 +680,25 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   //Handler for shields
 
   private void handleMenuShield(){
-
-    IdentityUtil.getRemoteIdentityKey(this, this.recipient).addListener(new ListenableFuture.Listener<Optional<IdentityRecord>>() {
-      @Override
-      public void onSuccess(Optional<IdentityRecord> result) {
-        IdentityRecord remoteIdentity = result.get();
-
         Intent intent = new Intent(getApplicationContext(), PrivacyCheckActivity.class);
-        intent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, recipient.getAddress());
+        intent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, this.recipient.getAddress());
         getApplicationContext().startActivity(intent);
-      }
-
-      @Override
-      public void onFailure(ExecutionException e) {
-        Toast.makeText(getApplicationContext(), "Congratulations! You have broken the study! (Friend\'s key not found)", Toast.LENGTH_LONG).show();
-      }
-    });
-
   }
 
   private void setShieldMenuIcon() {
     if (shieldMenuIcon != null) {
-      if (identityRecords.isVerified()) {
-        shieldMenuIcon.setIcon(R.drawable.ic_devon_header_verified_shield);
-      }
-      else if(identityRecords.isVeryUnverified()){
-        shieldMenuIcon.setIcon(R.drawable.ic_devon_header_very_unverified_shield);
+      if (!identityRecords.isEmpty()) {
+        if (identityRecords.isVerified()) {
+          shieldMenuIcon.setIcon(R.drawable.ic_devon_header_verified_shield);
+        } else if (identityRecords.isVeryUnverified()) {
+          shieldMenuIcon.setIcon(R.drawable.ic_devon_header_very_unverified_shield);
+        } else {
+          shieldMenuIcon.setIcon(R.drawable.ic_devon_header_unverified_shield);
+        }
+        shieldMenuIcon.setVisible(true);
       }
       else {
-        shieldMenuIcon.setIcon(R.drawable.ic_devon_header_unverified_shield);
+        shieldMenuIcon.setVisible(false);
       }
     }
   }
@@ -1391,7 +1376,15 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
         String message = null;
 
         if (identityRecordList.isUnverified()) {
-          message = IdentityUtil.getUnverifiedBannerDescription(ConversationActivity.this, identityRecordList.getUnverifiedRecipients(ConversationActivity.this));
+
+          //Devon newWarn code starts:
+          //commenting out next line of code to insert my own description
+          //message = IdentityUtil.getUnverifiedBannerDescription(ConversationActivity.this, identityRecordList.getUnverifiedRecipients(ConversationActivity.this));
+
+          message = getString(R.string.blue_banner_Signal_needs_your_help);
+
+          //Devon code ends
+
         }
 
         return new Pair<>(identityRecordList, message);
@@ -2386,10 +2379,19 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     public void onClicked(final List<IdentityRecord> unverifiedIdentities) {
       Log.i(TAG, "onClicked: " + unverifiedIdentities.size());
       if (unverifiedIdentities.size() == 1) {
-        Intent intent = new Intent(ConversationActivity.this, VerifyIdentityActivity.class);
+
+        //Devon newWarn code starts
+        //Commenting out their VerifyIdentityActivity and
+        //Redirecting the blueBanner click to the new PrivacyCheckActivity
+        /*Intent intent = new Intent(ConversationActivity.this, VerifyIdentityActivity.class);
         intent.putExtra(VerifyIdentityActivity.ADDRESS_EXTRA, unverifiedIdentities.get(0).getAddress());
         intent.putExtra(VerifyIdentityActivity.IDENTITY_EXTRA, new IdentityKeyParcelable(unverifiedIdentities.get(0).getIdentityKey()));
-        intent.putExtra(VerifyIdentityActivity.VERIFIED_EXTRA, false);
+        intent.putExtra(VerifyIdentityActivity.VERIFIED_EXTRA, false);*/
+
+        Intent intent = new Intent(ConversationActivity.this, PrivacyCheckActivity.class);
+        intent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, unverifiedIdentities.get(0).getAddress());
+
+        //Devon code ends
 
         startActivity(intent);
       } else {
@@ -2401,12 +2403,26 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
 
         AlertDialog.Builder builder = new AlertDialog.Builder(ConversationActivity.this);
         builder.setIconAttribute(R.attr.dialog_alert_icon);
-        builder.setTitle("No longer verified");
+
+        //Devon newWarn code starts
+        //changing title, but should never be used in our study
+        //builder.setTitle("No longer verified");
+        builder.setTitle("Privacy Check Needed");
+        //Devon code ends
+
         builder.setItems(unverifiedNames, (dialog, which) -> {
-          Intent intent = new Intent(ConversationActivity.this, VerifyIdentityActivity.class);
+          //Devon newWarn code starts
+          //Commenting out their VerifyIdentityActivity and
+          //Redirecting the blueBanner click to the new PrivacyCheckActivity
+          /*Intent intent = new Intent(ConversationActivity.this, VerifyIdentityActivity.class);
           intent.putExtra(VerifyIdentityActivity.ADDRESS_EXTRA, unverifiedIdentities.get(which).getAddress());
           intent.putExtra(VerifyIdentityActivity.IDENTITY_EXTRA, new IdentityKeyParcelable(unverifiedIdentities.get(which).getIdentityKey()));
-          intent.putExtra(VerifyIdentityActivity.VERIFIED_EXTRA, false);
+          intent.putExtra(VerifyIdentityActivity.VERIFIED_EXTRA, false);*/
+
+          Intent intent = new Intent(ConversationActivity.this, PrivacyCheckActivity.class);
+          intent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, unverifiedIdentities.get(which).getAddress());
+
+          //Devon code ends
 
           startActivity(intent);
         });

@@ -126,4 +126,13 @@ public class IdentityRecordList {
            System.currentTimeMillis() - identityRecord.getTimestamp() < TimeUnit.SECONDS.toMillis(5);
   }
 
+  //Devon newWarn code starts
+  //function lets me know if IdentityRecordList is empty
+  public boolean isEmpty(){
+    if (identityRecords.isEmpty()) {return true;}
+
+    return false;
+  }
+  //Devon code ends
+
 }

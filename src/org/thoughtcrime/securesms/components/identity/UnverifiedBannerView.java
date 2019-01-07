@@ -62,7 +62,11 @@ public class UnverifiedBannerView extends LinearLayout {
                       @NonNull final ClickListener clickListener,
                       @NonNull final DismissListener dismissListener)
   {
-    this.text.setText(text);
+
+    //Devon newWarn code starts
+    //commenting out setting text because it is not necessary in our new version
+    //this.text.setText(text);
+    //Devon code ends
     setVisibility(View.VISIBLE);
 
     this.container.setOnClickListener(new OnClickListener() {

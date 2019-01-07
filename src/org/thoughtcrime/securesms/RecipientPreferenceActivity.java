@@ -640,11 +640,9 @@ public class RecipientPreferenceActivity extends PassphraseRequiredActionBarActi
 
       @Override
       public boolean onPreferenceClick(Preference preference) {
-        Intent verifyIdentityIntent = new Intent(getActivity(), VerifyIdentityActivity.class);
-        verifyIdentityIntent.putExtra(VerifyIdentityActivity.ADDRESS_EXTRA, recipient.getAddress());
-        verifyIdentityIntent.putExtra(VerifyIdentityActivity.IDENTITY_EXTRA, new IdentityKeyParcelable(identityKey.getIdentityKey()));
-        verifyIdentityIntent.putExtra(VerifyIdentityActivity.VERIFIED_EXTRA, identityKey.getVerifiedStatus() == IdentityDatabase.VerifiedStatus.VERIFIED);
-        startActivity(verifyIdentityIntent);
+        Intent privacyCheckIntent = new Intent(getActivity(), PrivacyCheckActivity.class);
+        privacyCheckIntent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, recipient.getAddress());
+        startActivity(privacyCheckIntent);
 
         return true;
       }
