@@ -1517,7 +1517,7 @@
     <string name="privacy_check_verified_screen_You_have_already_completed_the_privacy_check_for_this_contact">You have already completed the privacy check for this contact.</string>
     <string name="privacy_check_verified_screen_View_QR_code">View QR Code</string>
     <string name="privacy_check_verified_screen_View_Identifiers">View Identifiers</string>
-    <string name="privacy_check_verified_screen_Mark_contact_as_unchecked">Mark contact as unchecked</string>
+    <string name="privacy_check_verified_screen_Reset_privacy_status">Reset privacy check status</string>
 
 
     <!-- privacy check verified screen view identifiers dialog -->
@@ -1540,8 +1540,8 @@
 
     <!-- privacy check QR code -->
     <string name="QR_code_screen_header">Privacy Check</string>
-    <string name="QR_code_screen_This_QR_code_is_a_visual_representation_of_the_device_identifiers_for_you_and_s">This QR code is a visual representation of the device identifiers for you and %s.</string>
-    <string name="QR_code_screen_Scan_each_others_QR_code_to_check_that_they_match">Scan each other\'s QR code to check that they match.</string>
+    <string name="QR_code_screen_This_QR_code_is_a_visual_representation">This QR code is a visual representation of the device identifiers for you and %s.</string>
+    <string name="QR_code_screen_Scan_each_others_QR_code">Scan each other\'s QR code to check that they match.</string>
 
 
     <!-- ///////////////////// OTHERS ////////////////////// -->
@@ -1549,6 +1549,10 @@
     <!-- Blue Banner Description -->
     <string name="blue_banner_Signal_needs_your_help">Signal needs your help to protect the privacy of this conversation. Tap to begin a privacy check.</string>
 
+    <!-- Text message indicators -->
+    <string name="text_message_indicator_Signal_recommends_a_privacy_check">Signal recommends you perform a privacy check</string>
+    <string name="text_message_indicator_You_marked_s_as_verified">You completed the privacy check for %s</string>
+    <string name="text_message_indicator_You_marked_s_as_unverified">You reset the privacy check status for %s</string>
 
     <!-- icon titles -->
     <string name="conversation_shield_menu">Shield Icon</string>

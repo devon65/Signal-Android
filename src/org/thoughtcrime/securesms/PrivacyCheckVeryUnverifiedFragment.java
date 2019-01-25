@@ -74,12 +74,12 @@ public class PrivacyCheckVeryUnverifiedFragment extends Fragment {
     }
 
     private void inPersonClicked(){
-        Toast.makeText(getContext(), "Whoopee!", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getContext(), "Whoopee!", Toast.LENGTH_LONG).show();
         mListener.onInPersonAuthentication();
     }
 
     private void phoneCallClicked(){
-        Toast.makeText(getContext(), "Yeahooo!", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getContext(), "Yeahooo!", Toast.LENGTH_LONG).show();
         mListener.onPhoneCallAuthentication();
     }
 

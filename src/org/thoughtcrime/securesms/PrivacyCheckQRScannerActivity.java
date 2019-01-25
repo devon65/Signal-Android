@@ -48,6 +48,7 @@ import android.view.animation.AnticipateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.thoughtcrime.securesms.color.MaterialColor;
@@ -65,6 +66,7 @@ import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientModifiedListener;
 import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicTheme;
+import org.thoughtcrime.securesms.util.IdentityUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.ViewUtil;
@@ -222,6 +224,10 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
 
         // Elham code ends
 
+        //Devon newWarn code starts
+        private TextView        visualRepresentation;
+        //Devon code ends
+
         private View           container;
         private CameraView     cameraView;
         private ScanningThread scanningThread;
@@ -249,11 +255,9 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
                     //Displays the PrivacyCheckSuccessDialog upon successful scan
 
                     PrivacyCheckSuccessDialog successDialog = new PrivacyCheckSuccessDialog(getContext(), recipient.getName(), PrivacyCheckQRScannerActivity.class.getSimpleName());
-                    successDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialogInterface) {
-                            onResume();
-                        }
+                    successDialog.setOnDismissListener(dialogInterface -> {
+                        IdentityUtil.markIdentityVerified(getContext(), recipient, true, false);
+                        onResume();
                     });
                     successDialog.show();
 
@@ -336,6 +340,11 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
             this.recipient      = Recipient.from(getActivity(), address, true);
             this.remoteIdentity = remoteIdentityParcelable.get();
 
+            //Devon newWarn code starts
+            this.visualRepresentation = ViewUtil.findById(container, R.id.qr_code_frag_this_is_a_visual_representation);
+            this.visualRepresentation.setText(String.format(this.getString(R.string.QR_code_screen_This_QR_code_is_a_visual_representation), recipient.getName()));
+            //Devon code ends
+
             new AsyncTask<Void, Void, Fingerprint>() {
                 @Override
                 protected Fingerprint doInBackground(Void... params) {
@@ -344,11 +353,11 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
                     //Changing the remoteIdentity that is fed into the fingerprint generator
                     //to fake a new "safety number"
 
-                    /*IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
-                    if (isMITMAttackOn.isSafetyNumberChanged()) {
+                    IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
+                    if (isMITMAttackOn.isSafetyNumberChanged() && !isMITMAttackOn.isTesting()) {
                         return new NumericFingerprintGenerator(5200).createFor(localNumber, localIdentity,
                                 remoteNumber, isMITMAttackOn.getFakeKey());
-                    }*/
+                    }
 
                     //Devon code ends here
 

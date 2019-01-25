@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.text.style.ClickableSpan;
 import android.view.View;
 
+import org.thoughtcrime.securesms.PrivacyCheckActivity;
 import org.thoughtcrime.securesms.VerifyIdentityActivity;
 import org.thoughtcrime.securesms.crypto.IdentityKeyParcelable;
 import org.thoughtcrime.securesms.database.Address;
@@ -32,10 +33,19 @@ public class VerifySpan extends ClickableSpan {
 
   @Override
   public void onClick(View widget) {
-    Intent intent = new Intent(context, VerifyIdentityActivity.class);
+
+    //Devon newWarn code starts
+    //Commenting out VerifyIdentityActivity to reroute to PrivacyCheckActivity
+    /*Intent intent = new Intent(context, VerifyIdentityActivity.class);
     intent.putExtra(VerifyIdentityActivity.ADDRESS_EXTRA, address);
     intent.putExtra(VerifyIdentityActivity.IDENTITY_EXTRA, new IdentityKeyParcelable(identityKey));
-    intent.putExtra(VerifyIdentityActivity.VERIFIED_EXTRA, false);
+    intent.putExtra(VerifyIdentityActivity.VERIFIED_EXTRA, false);*/
+
+    Intent intent = new Intent(context, PrivacyCheckActivity.class);
+    intent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, address);
+
+    //Devon code ends
+
     context.startActivity(intent);
   }
 }

@@ -288,7 +288,7 @@ public class VerifyIdentityActivity extends PassphraseRequiredActionBarActivity 
           //Changing the remoteIdentity that is fed into the fingerprint generator
           //to fake a new "safety number"
 
-          IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+          IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
           if (isMITMAttackOn.isSafetyNumberChanged()) {
             return new NumericFingerprintGenerator(5200).createFor(localNumber, localIdentity,
                     remoteNumber, isMITMAttackOn.getFakeKey());
@@ -631,7 +631,7 @@ public class VerifyIdentityActivity extends PassphraseRequiredActionBarActivity 
             //Devon code starts here
             //Here we are turning off the attack mode because the user has marked the contact
             //as verified
-            IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+            IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
             isMITMAttackOn.setIsAttackOn(false, getContext());
             //Devon code ends here
 

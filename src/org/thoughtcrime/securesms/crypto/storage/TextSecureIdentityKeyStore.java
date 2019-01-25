@@ -52,15 +52,15 @@ public class TextSecureIdentityKeyStore implements IdentityKeyStore {
       Address                  signalAddress    = Address.fromExternal(context, address.getName());
       Optional<IdentityRecord> identityRecord   = identityDatabase.getIdentity(signalAddress);
 
+      //Devon code starts here
+      IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
+      //Devon code ends here
+
       if (!identityRecord.isPresent()) {
         Log.i(TAG, "Saving new identity...");
         identityDatabase.saveIdentity(signalAddress, identityKey, VerifiedStatus.DEFAULT, true, System.currentTimeMillis(), nonBlockingApproval);
         return false;
       }
-
-      //Devon code starts here
-      IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
-      //Devon code ends here
 
       if (!identityRecord.get().getIdentityKey().equals(identityKey)
               //Devon code starts here
@@ -71,13 +71,20 @@ public class TextSecureIdentityKeyStore implements IdentityKeyStore {
         Log.i(TAG, "Replacing existing identity...");
         VerifiedStatus verifiedStatus;
 
-        if (identityRecord.get().getVerifiedStatus() == VerifiedStatus.VERIFIED ||
+        //Devon newWarn code starts
+        //if keys don't match, we mark that identity as unverified
+        //Commenting out original code and adding one line
+
+        /*if (identityRecord.get().getVerifiedStatus() == VerifiedStatus.VERIFIED ||
             identityRecord.get().getVerifiedStatus() == VerifiedStatus.UNVERIFIED)
         {
           verifiedStatus = VerifiedStatus.UNVERIFIED;
         } else {
           verifiedStatus = VerifiedStatus.DEFAULT;
-        }
+        }*/
+
+        verifiedStatus = VerifiedStatus.UNVERIFIED;
+        //Devon Devon code ends
 
         identityDatabase.saveIdentity(signalAddress, identityKey, verifiedStatus, false, System.currentTimeMillis(), nonBlockingApproval);
         IdentityUtil.markIdentityUpdate(context, Recipient.from(context, signalAddress, true));
@@ -126,7 +133,7 @@ public class TextSecureIdentityKeyStore implements IdentityKeyStore {
     //when messages are sent, the app checks here.
     //return false if attack is on
 
-    IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+    IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
     if (isMITMAttackOn.isAttackOn()) {
       saveIdentity(new SignalProtocolAddress(identityRecord.get().getAddress().toPhoneString(), 1), identityKey);
       return false;

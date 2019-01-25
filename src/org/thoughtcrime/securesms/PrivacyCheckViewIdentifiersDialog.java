@@ -21,6 +21,7 @@ import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.whispersystems.libsignal.IdentityKey;
+import org.whispersystems.libsignal.fingerprint.NumericFingerprintGenerator;
 
 @SuppressLint("StaticFieldLeak")
 public class PrivacyCheckViewIdentifiersDialog extends AlertDialog {
@@ -90,11 +91,12 @@ public class PrivacyCheckViewIdentifiersDialog extends AlertDialog {
                 //Changing the remoteIdentity that is fed into the fingerprint generator
                 //to fake a new "safety number"
 
-                /*IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
-                if (isMITMAttackOn.isSafetyNumberChanged()) {
+                IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
+                if (isMITMAttackOn.isSafetyNumberChanged() && !isMITMAttackOn.isTesting()) {
                     return new PrivacyCheckNumericFingerprintGenerator(5200).createFor(localNumber, localIdentity,
                             remoteNumber, isMITMAttackOn.getFakeKey());
-                }*/
+                }
+
 
                 return new PrivacyCheckNumericFingerprintGenerator(5200).createFor(localNumber, localIdentity,
                         remoteNumber, remoteIdentity);

@@ -807,7 +807,7 @@ public class ConversationItem extends LinearLayout
 
     //new ConfirmIdentityDialog(context, messageRecord, mismatches.get(0)).show();
 
-    new PrivacyCheckGetStartedDialog(getContext(), messageRecord, mismatches.get(0)).show();
+    //new PrivacyCheckGetStartedDialog(getContext(), mismatches.get(0)).show();
 
     //Devon code ends
   }

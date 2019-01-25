@@ -116,6 +116,8 @@ public class WebRtcCallControls extends LinearLayout {
     });
   }
 
+  //Devon code ends
+
   public void setCameraFlipButtonListener(final CameraFlipButtonListener listener) {
     cameraFlipButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
       @Override
@@ -201,6 +203,8 @@ public class WebRtcCallControls extends LinearLayout {
 
     shieldButton.setChecked(enabled, true);
   }
+
+  //Devon code ends
 
   public void setCameraFlipAvailable(boolean available) {
     cameraFlipAvailable = available;

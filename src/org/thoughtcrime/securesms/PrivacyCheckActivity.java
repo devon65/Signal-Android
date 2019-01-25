@@ -3,8 +3,11 @@
 
 package org.thoughtcrime.securesms;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -17,7 +20,10 @@ import org.thoughtcrime.securesms.color.MaterialColor;
 import org.thoughtcrime.securesms.crypto.IdentityKeyParcelable;
 import org.thoughtcrime.securesms.crypto.IdentityKeyUtil;
 import org.thoughtcrime.securesms.database.Address;
+import org.thoughtcrime.securesms.database.Database;
+import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.IdentityDatabase;
+import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatch;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.IdentityUtil;
@@ -27,6 +33,8 @@ import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.util.guava.Optional;
 
 import java.util.concurrent.ExecutionException;
+
+import static org.whispersystems.libsignal.SessionCipher.SESSION_LOCK;
 
 public class PrivacyCheckActivity extends AppCompatActivity
         implements PrivacyCheckVerifiedFragment.OnMarkContactAsUnverifiedListener,
@@ -48,7 +56,7 @@ public class PrivacyCheckActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.privacy_check_screen_header);
 
-        this.recipient = Recipient.from(this, (Address)getIntent().getParcelableExtra(ADDRESS_EXTRA), true);
+        this.recipient = Recipient.from(this, getIntent().getParcelableExtra(ADDRESS_EXTRA), true);
         setActionBarNotificationBarColor(recipient.getColor());
 
 
@@ -157,12 +165,55 @@ public class PrivacyCheckActivity extends AppCompatActivity
         }
     }
 
+    private static void changeVerifiedStatus(Context context, IdentityKey remoteIdentityKey, Recipient recipient, IdentityDatabase.VerifiedStatus updatedVerifiedStatus, boolean markVerifiedStatusChange){
+        new AsyncTask<Recipient, Void, Void>() {
+            @Override
+            protected Void doInBackground(Recipient... params) {
+                synchronized (SESSION_LOCK) {
+                    DatabaseFactory.getIdentityDatabase(context)
+                            .setVerified(params[0].getAddress(),
+                                    remoteIdentityKey,
+                                    updatedVerifiedStatus);
+
+                    if (markVerifiedStatusChange) {
+                        IdentityUtil.markIdentityVerified(context, recipient, updatedVerifiedStatus == IdentityDatabase.VerifiedStatus.VERIFIED, false);
+                    }
+
+                }
+                return null;
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, recipient);
+    }
+
+    @Override
+    public void changeVerifiedStatus(IdentityDatabase.VerifiedStatus updatedVerifiedStatus, boolean markVerifiedStatusChange){
+        changeVerifiedStatus(this, this.remoteIdentityKey, this.recipient, updatedVerifiedStatus, markVerifiedStatusChange);
+    }
+
+    @Override
+    public int getVerifiedStatus(){
+        return verifiedStatus;
+    }
 
     @Override
     public void switchToUnverifiedFragment() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.privacy_check_fragment_container, initializePrivacyCheckUnverifiedFragment());
         transaction.commit();
+    }
+
+    @Override
+    public void onNotNowClicked() {
+        if (verifiedStatus == IdentityDatabase.VerifiedStatus.UNVERIFIED.toInt()){
+            PrivacyCheckRemindLaterDialog remindLaterDialog = new PrivacyCheckRemindLaterDialog(this, new IdentityKeyMismatch(recipient.getAddress(), remoteIdentityKey));
+            remindLaterDialog.setOnDismissListener(dialogInterface -> {
+                PrivacyCheckActivity.this.finish();
+            });
+            remindLaterDialog.show();
+        }
+        else{
+            finish();
+        }
     }
 
     @Override

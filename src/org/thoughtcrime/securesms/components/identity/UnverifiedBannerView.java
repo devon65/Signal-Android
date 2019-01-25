@@ -26,7 +26,10 @@ public class UnverifiedBannerView extends LinearLayout {
 
   private View      container;
   private TextView  text;
-  private ImageView closeButton;
+  //Devon newWarn code starts:
+  //commenting out "X" closing button
+  //private ImageView closeButton;
+  //Devon code ends
 
   public UnverifiedBannerView(Context context) {
     super(context);
@@ -54,7 +57,11 @@ public class UnverifiedBannerView extends LinearLayout {
     LayoutInflater.from(getContext()).inflate(R.layout.unverified_banner_view, this, true);
     this.container   = ViewUtil.findById(this, R.id.container);
     this.text        = ViewUtil.findById(this, R.id.unverified_text);
-    this.closeButton = ViewUtil.findById(this, R.id.cancel);
+
+    //Devon newWarn code starts:
+    //commenting out "X" closing button
+    //this.closeButton = ViewUtil.findById(this, R.id.cancel);
+    //Devon code ends
   }
 
   public void display(@NonNull final String text,
@@ -77,13 +84,16 @@ public class UnverifiedBannerView extends LinearLayout {
       }
     });
 
-    this.closeButton.setOnClickListener(new OnClickListener() {
+    //Devon newWarn code starts:
+    //Commenting out closeButton for unverified blue banner
+    /*this.closeButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
         hide();
         dismissListener.onDismissed(unverifiedIdentities);
       }
-    });
+    });*/
+    //Devon code ends
   }
 
   public void hide() {

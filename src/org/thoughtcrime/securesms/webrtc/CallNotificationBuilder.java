@@ -78,7 +78,7 @@ public class CallNotificationBuilder {
     return new NotificationCompat.Action(iconResId, context.getString(titleResId), pendingIntent);
   }
 
-  //Devon newWarn code starts: added last argument to this function so the app can extract the
+  //Devon newWarn code starts: added last "Address" argument to this function so the app can extract the
   //remote IdentityKey while inside the phonecall
   private static NotificationCompat.Action getActivityNotificationAction(@NonNull Context context, @NonNull String action,
                                                                          @DrawableRes int iconResId, @StringRes int titleResId, @NonNull Address remoteAddress)

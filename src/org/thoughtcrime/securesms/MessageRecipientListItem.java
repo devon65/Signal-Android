@@ -116,7 +116,7 @@ public class MessageRecipientListItem extends RelativeLayout
 
       //conflictButton.setOnClickListener(v -> new ConfirmIdentityDialog(getContext(), record, keyMismatch).show());
 
-      conflictButton.setOnClickListener(v -> new PrivacyCheckGetStartedDialog(getContext(), record, keyMismatch).show());
+      //conflictButton.setOnClickListener(v -> new PrivacyCheckGetStartedDialog(getContext(), keyMismatch).show());
 
       //Devon code ends
     } else if (networkFailure != null || (!isPushGroup && record.isFailed())) {

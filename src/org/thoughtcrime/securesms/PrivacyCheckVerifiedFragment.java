@@ -37,7 +37,7 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
 
     private TextView viewQRCodeButton;
     private TextView viewIdentifiersButton;
-    private TextView markContactAsUnverifiedButton;
+    private TextView resetPrivacyStatus;
     private TextView screenTitle;
 
     private String      recipientName;
@@ -84,11 +84,11 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
             }
         });
 
-        markContactAsUnverifiedButton = (TextView) view.findViewById(R.id.privacy_check_verified_mark_contact_as_unverified);
-        markContactAsUnverifiedButton.setOnClickListener(new View.OnClickListener() {
+        resetPrivacyStatus = (TextView) view.findViewById(R.id.privacy_check_verified_mark_contact_as_unverified);
+        resetPrivacyStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                markContactAsVerifiedClicked(getContext(), remoteIdentityKey, recipient);
+                mListener.changeVerifiedStatus(IdentityDatabase.VerifiedStatus.DEFAULT, true);
                 mListener.switchToUnverifiedFragment();
             }
         });
@@ -100,40 +100,15 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
     }
 
     private void viewQRCodeClicked(){
-        Toast.makeText(getContext(), "Ah Yeah!", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getContext(), "Ah Yeah!", Toast.LENGTH_LONG).show();
         mListener.onInPersonAuthentication();
     }
 
     private void viewIdentifiersClicked(){
-        Toast.makeText(getContext(), "Oh Baby!", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getContext(), "Oh Baby!", Toast.LENGTH_LONG).show();
         mListener.onViewIdentifiers();
     }
 
-    private static void markContactAsVerifiedClicked(Context context, IdentityKey remoteIdentityKey, Recipient recipient){
-        new AsyncTask<Recipient, Void, Void>() {
-            @Override
-            protected Void doInBackground(Recipient... params) {
-                synchronized (SESSION_LOCK) {
-                        DatabaseFactory.getIdentityDatabase(context)
-                                .setVerified(params[0].getAddress(),
-                                        remoteIdentityKey,
-                                        IdentityDatabase.VerifiedStatus.DEFAULT);
-
-                    /*ApplicationContext.getInstance(getActivity())
-                            .getJobManager()
-                            .add(new MultiDeviceVerifiedUpdateJob(getActivity(),
-                                    recipient.getAddress(),
-                                    remoteIdentity,
-                                    IdentityDatabase.VerifiedStatus.DEFAULT));*/
-
-                    IdentityUtil.markIdentityVerified(context, recipient, false, false);
-
-
-                }
-                return null;
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, recipient);
-    }
 
 
     @Override
@@ -157,6 +132,7 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
 
 
     public interface OnMarkContactAsUnverifiedListener {
+        void changeVerifiedStatus(IdentityDatabase.VerifiedStatus updatedVerifiedStatus, boolean markVerifiedStatusChange);
         void switchToUnverifiedFragment();
         void onInPersonAuthentication();
         void onViewIdentifiers();

@@ -204,6 +204,8 @@ public class WebRtcCallScreen extends FrameLayout implements RecipientModifiedLi
     this.controls.setShieldButtonEnabled(enabled, verifiedStatus);
   }
 
+  //Devon code ends
+
   public void setLocalVideoState(@NonNull CameraState cameraState) {
     this.controls.setVideoAvailable(cameraState.getCameraCount() > 0);
     this.controls.setVideoEnabled(cameraState.isEnabled());
@@ -241,6 +243,15 @@ public class WebRtcCallScreen extends FrameLayout implements RecipientModifiedLi
   public boolean isVideoEnabled() {
     return controls.isVideoEnabled();
   }
+
+  //Devon newWarn code starts
+  //returns true if remote video feed is viewable
+
+  public boolean isRemoteVideoEnabled(){
+    return !remoteRenderLayout.isHidden();
+  }
+
+  //Devon code ends
 
   private void initialize() {
     LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -283,7 +294,12 @@ public class WebRtcCallScreen extends FrameLayout implements RecipientModifiedLi
         ((ViewGroup)remoteRenderer.getParent()).removeView(remoteRenderer);
       }
 
-      localRenderLayout.setPosition(7, 70, 25, 25);
+      //Devon newWarn code starts:
+      //changing localRenderLayout position
+      //localRenderLayout.setPosition(7, 70, 25, 25);
+      localRenderLayout.setPosition(2, 90, 25, 25);
+      //Devon newWarn code ends
+
       localRenderLayout.setSquare(true);
       remoteRenderLayout.setPosition(0, 0, 100, 100);
 

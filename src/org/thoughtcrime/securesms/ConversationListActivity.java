@@ -92,12 +92,11 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
 
     //Initializing saved MITM booleans inside IsMITMAttackOn.java
 
-    IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+    IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
     isMITMAttackOn.initializeBooleans(getApplicationContext());
 
     //Here we are opening the connection to our Man in the Middle server and then waiting for
     //the server to tell us that the attack is on.
-
 
     Intent manInMiddleAttack = new Intent(this, ManInMiddleService.class);
     startService(manInMiddleAttack);
@@ -120,6 +119,7 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
 
     TooltipCompat.setTooltipText(searchAction, getText(R.string.SearchToolbar_search_for_conversations_contacts_and_messages));
   }
+
 
   @Override
   public void onResume() {

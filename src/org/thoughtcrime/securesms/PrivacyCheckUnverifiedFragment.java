@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.thoughtcrime.securesms.database.IdentityDatabase;
+
 
 public class PrivacyCheckUnverifiedFragment extends Fragment {
 
@@ -39,7 +41,7 @@ public class PrivacyCheckUnverifiedFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            recipientName = getArguments().getString(RECIPIENT_NAME);
+            recipientName  = getArguments().getString(RECIPIENT_NAME);
         }
     }
 
@@ -48,53 +50,44 @@ public class PrivacyCheckUnverifiedFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_privacy_check_unverified, container, false);
 
-        notNowButton = (TextView) view.findViewById(R.id.privacy_check_unverified_not_now);
-        notNowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                notNowClicked();
-            }
-        });
+        notNowButton = view.findViewById(R.id.privacy_check_unverified_not_now);
+        notNowButton.setOnClickListener(view1 -> notNowClicked());
 
-        inPersonButton = (TextView) view.findViewById(R.id.privacy_check_unverified_in_person);
-        inPersonButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                inPersonClicked();
-            }
-        });
+        inPersonButton = view.findViewById(R.id.privacy_check_unverified_in_person);
+        inPersonButton.setOnClickListener(view12 -> inPersonClicked());
 
-        phoneCallButton = (TextView) view.findViewById(R.id.privacy_check_unverified_phone_call);
-        phoneCallButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                phoneCallClicked();
-            }
-        });
+        phoneCallButton = view.findViewById(R.id.privacy_check_unverified_phone_call);
+        phoneCallButton.setOnClickListener(view13 -> phoneCallClicked());
 
-        youAndFriendText = (TextView) view.findViewById(R.id.privacy_check_unverified_you_and_friend_text);
+        youAndFriendText = view.findViewById(R.id.privacy_check_unverified_you_and_friend_text);
         youAndFriendText.setText(String.format(getContext().getString(R.string.privacy_check_unverified_screen_You_and_s_can_compare_your_copy_of_each_others_identifiers), recipientName));
 
-        ifTheyMatchText = (TextView) view.findViewById(R.id.privacy_check_unverified_if_they_match_text);
+        ifTheyMatchText = view.findViewById(R.id.privacy_check_unverified_if_they_match_text);
         ifTheyMatchText.setText(String.format(getContext().getString(R.string.privacy_check_unverified_screen_If_they_match), recipientName));
 
-        toCompareIdentifiersText = (TextView) view.findViewById(R.id.privacy_check_unverified_to_compare_identifiers_text);
+        toCompareIdentifiersText = view.findViewById(R.id.privacy_check_unverified_to_compare_identifiers_text);
         toCompareIdentifiersText.setText(String.format(getContext().getString(R.string.privacy_check_unverified_screen_To_compare_your_identifier_with_s), recipientName));
 
         return view;
     }
 
     private void notNowClicked(){
-        getActivity().finish();
+        mListener.onNotNowClicked();
     }
 
     private void inPersonClicked(){
-        Toast.makeText(getContext(), "So Sexy!", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getContext(), "So Sexy!", Toast.LENGTH_LONG).show();
+        if (mListener.getVerifiedStatus() == IdentityDatabase.VerifiedStatus.UNVERIFIED.toInt()) {
+            mListener.changeVerifiedStatus(IdentityDatabase.VerifiedStatus.DEFAULT, false);
+        }
         mListener.onInPersonAuthentication();
     }
 
     private void phoneCallClicked(){
-        Toast.makeText(getContext(), "Smashing!", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getContext(), "Smashing!", Toast.LENGTH_LONG).show();
+        if (mListener.getVerifiedStatus() == IdentityDatabase.VerifiedStatus.UNVERIFIED.toInt()) {
+            mListener.changeVerifiedStatus(IdentityDatabase.VerifiedStatus.DEFAULT, false);
+        }
         mListener.onPhoneCallAuthentication();
     }
 
@@ -117,6 +110,9 @@ public class PrivacyCheckUnverifiedFragment extends Fragment {
     }
 
     public interface OnUnverifiedInteractionListener {
+        int getVerifiedStatus();
+        void onNotNowClicked();
+        void changeVerifiedStatus(IdentityDatabase.VerifiedStatus updatedVerifiedStatus, boolean markVerifiedStatusChange);
         void onInPersonAuthentication();
         void onPhoneCallAuthentication();
     }

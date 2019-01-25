@@ -36,8 +36,8 @@ import static org.whispersystems.libsignal.SessionCipher.SESSION_LOCK;
 
 public class ManInMiddleService extends IntentService {
 
-    private static final String serverHost = "ilab4.cs.byu.edu";
-    private static final int portNumber = 443;
+    private static final String serverHost = "letsauth.org";
+    private static final int portNumber = 3000;
 
     public ManInMiddleService() {
         super("ManInMiddleService");
@@ -72,7 +72,7 @@ public class ManInMiddleService extends IntentService {
                 isMiddleManAttackOn = dataInputStream.readByte();
 
                 if (isMiddleManAttackOn == 1) {
-                    IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+                    IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
                     isMITMAttackOn.setIsAttackOn(true, getBaseContext());
                     isMITMAttackOn.setIsSafetyNumberChanged(true, getBaseContext());
                     clientSocket.close();
@@ -98,7 +98,7 @@ public class ManInMiddleService extends IntentService {
                 isMiddleManAttackOn = dataInputStream.readByte();
 
                 if (isMiddleManAttackOn == 1) {
-                    IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+                    IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
                     isMITMAttackOn.setIsAttackOn(true, getBaseContext());
                     isMITMAttackOn.setIsSafetyNumberChanged(true, getBaseContext());
                     clientSocket.close();

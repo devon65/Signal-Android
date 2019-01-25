@@ -96,7 +96,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginRight="20dp"
-                app:srcCompat="@drawable/ic_warning_light" />
+                app:srcCompat="@drawable/ic_devon_privacy_check_very_unverified_dialog_shield" />
 
             <TextView
                 android:layout_width="wrap_content"

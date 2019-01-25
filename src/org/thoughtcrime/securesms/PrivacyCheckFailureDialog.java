@@ -42,7 +42,7 @@ public class PrivacyCheckFailureDialog extends AlertDialog {
 
 
         setTitle(R.string.privacy_check_failure_dialog_title);
-        setIcon(R.drawable.ic_warning_light);
+        setIcon(R.drawable.ic_devon_privacy_check_very_unverified_dialog_shield);
         setView(view);
 
         setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_failure_dialog_Im_sure), new PrivacyCheckFailureDialog.AcceptListener(failureListener));

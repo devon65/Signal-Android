@@ -36,7 +36,7 @@
                 <org.thoughtcrime.securesms.components.ShapeScrim
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:radius="0.3"
+                    app:radius="0.4"
                     app:shape="circle"/>
 
             </LinearLayout>
@@ -45,38 +45,61 @@
 
         <!-- Elham code starts -->
 
-        <FrameLayout android:layout_width="250dp"
-            android:layout_height="250dp">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.4">
 
-            <org.thoughtcrime.securesms.components.SquareImageView
-                android:id="@+id/qr_code_frag"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="20dp"
-                android:padding="20dp"
-                android:background="@drawable/qr_code_background"
-                android:visibility="visible"
-                tools:src="@drawable/splash_logo"
-                />
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingBottom="10dp"
+                android:paddingHorizontal="30dp">
 
-            <org.thoughtcrime.securesms.components.SquareImageView
-                android:id="@+id/qr_verified_frag"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="20dp"
-                android:padding="20dp"
-                android:src="@drawable/ic_check_white_48dp"
-                android:background="@drawable/qr_code_background"
-                android:visibility="gone"/>
+                <TextView
+                    android:id="@+id/qr_code_frag_this_is_a_visual_representation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:gravity="center"
+                    android:text="@string/QR_code_screen_This_QR_code_is_a_visual_representation"
+                    android:textColor="@color/black"
+                    android:textSize="16dp"/>
 
-            <TextView
-                android:id="@+id/help"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:gravity="center"
-                android:text="Scan Qr code on your contact's phone" />
+                <TextView
+                    android:id="@+id/qr_code_frag_scan_each_others_qr_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/QR_code_screen_Scan_each_others_QR_code"
+                    android:textColor="@color/black"
+                    android:textSize="16dp"/>
 
+
+                <org.thoughtcrime.securesms.components.SquareImageView
+                    android:id="@+id/qr_code_frag"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_margin="20dp"
+                    android:background="@drawable/qr_code_background"
+                    android:padding="20dp"
+                    android:visibility="visible"
+                    tools:src="@drawable/splash_logo" />
+
+                <org.thoughtcrime.securesms.components.SquareImageView
+                    android:id="@+id/qr_verified_frag"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="20dp"
+                    android:background="@drawable/qr_code_background"
+                    android:padding="20dp"
+                    android:src="@drawable/ic_check_white_48dp"
+                    android:visibility="gone" />
+
+
+            </LinearLayout>
         </FrameLayout>
 
     </LinearLayout>

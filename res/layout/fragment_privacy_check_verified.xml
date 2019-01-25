@@ -74,7 +74,7 @@
             android:textColor="@color/blue_700"
             android:clickable="true"
             android:layout_marginTop="15dp"
-            android:text="@string/privacy_check_verified_screen_Mark_contact_as_unchecked"/>
+            android:text="@string/privacy_check_verified_screen_Reset_privacy_status"/>
 
         <android.support.v4.widget.Space
             android:layout_width="match_parent"

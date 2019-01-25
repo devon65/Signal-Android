@@ -17,6 +17,7 @@ import android.widget.TextView;
 import org.thoughtcrime.securesms.crypto.storage.TextSecureIdentityKeyStore;
 import org.thoughtcrime.securesms.database.Address;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.database.IdentityDatabase;
 import org.thoughtcrime.securesms.database.MmsDatabase;
 import org.thoughtcrime.securesms.database.MmsSmsDatabase;
 import org.thoughtcrime.securesms.database.PushDatabase;
@@ -40,10 +41,7 @@ public class PrivacyCheckRemindLaterDialog extends AlertDialog {
     @SuppressWarnings("unused")
     private static final String TAG = PrivacyCheckRemindLaterDialog.class.getSimpleName();
 
-    private OnClickListener callback;
-
     public PrivacyCheckRemindLaterDialog(Context context,
-                                 MessageRecord messageRecord,
                                  IdentityKeyMismatch mismatch)
     {
         super(context);
@@ -62,8 +60,8 @@ public class PrivacyCheckRemindLaterDialog extends AlertDialog {
         setIcon(R.drawable.ic_info_outline_light);
         setView(view);
 
-        setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_remind_later_dialog_Resend_failed_messages), new PrivacyCheckRemindLaterDialog.AcceptListener(messageRecord, mismatch, recipient.getAddress()));
-        setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.privacy_check_remind_later_dialog_Dont_resend),               new PrivacyCheckRemindLaterDialog.CancelListener());
+        setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_remind_later_dialog_I_understand), new PrivacyCheckRemindLaterDialog.AcceptListener(context, mismatch));
+        //setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.privacy_check_remind_later_dialog_Dont_resend),               new PrivacyCheckRemindLaterDialog.CancelListener());
     }
 
     @Override
@@ -73,11 +71,37 @@ public class PrivacyCheckRemindLaterDialog extends AlertDialog {
                 .setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    public void setCallback(OnClickListener callback) {
-        this.callback = callback;
+    private class AcceptListener implements OnClickListener {
+
+        IdentityKeyMismatch mismatch;
+        Context context;
+
+        AcceptListener(Context context, IdentityKeyMismatch mismatch){
+            this.mismatch = mismatch;
+            this.context  = context;
+        }
+
+        @Override
+        public void onClick(DialogInterface dialogInterface, int i) {
+            final IdentityDatabase identityDatabase = DatabaseFactory.getIdentityDatabase(getContext());
+
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    synchronized (SESSION_LOCK) {
+                        identityDatabase.setVerified(mismatch.getAddress(),
+                                mismatch.getIdentityKey(),
+                                IdentityDatabase.VerifiedStatus.DEFAULT);
+                    }
+
+                    return null;
+                }
+
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
     }
 
-    private class AcceptListener implements OnClickListener {
+    /*private class AcceptListener implements OnClickListener {
 
         private final MessageRecord       messageRecord;
         private final IdentityKeyMismatch mismatch;
@@ -196,7 +220,7 @@ public class PrivacyCheckRemindLaterDialog extends AlertDialog {
         public void onClick(DialogInterface dialog, int which) {
             if (callback != null) callback.onClick(null, 0);
         }
-    }
+    }*/
 
 }
 

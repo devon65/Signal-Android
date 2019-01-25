@@ -151,7 +151,7 @@ public class IdentityUtil {
 
     //Devon code starts here
     //Here we are marking that the text message warning has been sent
-    IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+    IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
     isMITMAttackOn.setIsAttackOn(false, context);
     //isMITMAttackOn.setIsTextSent(true);
     //Devon code ends here
@@ -187,7 +187,7 @@ public class IdentityUtil {
 
       //Devon code starts here
       //
-      IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+      IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
       //Devon code ends here
 
       if (verifiedMessage.getVerified() == VerifiedMessage.VerifiedState.DEFAULT              &&

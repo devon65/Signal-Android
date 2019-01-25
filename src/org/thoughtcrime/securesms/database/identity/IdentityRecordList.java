@@ -133,6 +133,10 @@ public class IdentityRecordList {
 
     return false;
   }
+
+  public List<IdentityRecord> getIdentityRecordsList(){
+    return identityRecords;
+  }
   //Devon code ends
 
 }

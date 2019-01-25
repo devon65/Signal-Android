@@ -14,15 +14,25 @@ public class IsMITMAttackOn {
 
     private static final String attackBoolString = "attackBoolean";
     private static final String safetyNumberBoolString = "safetyNumberBoolean";
+    private static final String welcomeScreenBoolString = "welcomeScreenBoolean";
 
+    private static IsMITMAttackOn isMITMAttackOn = null;
     private static boolean attackOn = false;
     private static boolean safetyNumberChanged = false;
+    private static boolean welcomeScreenAlreadyShown = false;
+    private static boolean testing = false;
 
     private static IdentityKey fakeKey = null;
 
 
-    public IsMITMAttackOn(){
+    public static IsMITMAttackOn getInstance(){
+        if (isMITMAttackOn == null){
+            isMITMAttackOn = new IsMITMAttackOn();
+        }
+        return isMITMAttackOn;
+    }
 
+    private IsMITMAttackOn(){
         if (this.fakeKey == null) {
             ECKeyPair ourKeyPair = Curve.generateKeyPair();
             this.fakeKey = new IdentityKey(ourKeyPair.getPublicKey());
@@ -38,6 +48,7 @@ public class IsMITMAttackOn {
 
         this.attackOn = sharedPref.getBoolean(attackBoolString, false);
         this.safetyNumberChanged = sharedPref.getBoolean(safetyNumberBoolString, false);
+        this.welcomeScreenAlreadyShown = sharedPref.getBoolean(welcomeScreenBoolString, false);
     }
 
 
@@ -52,11 +63,17 @@ public class IsMITMAttackOn {
         return safetyNumberChanged;
     }
 
+    public static boolean isWelcomeScreenAlreadyShown() {
+        return welcomeScreenAlreadyShown;
+    }
+
+    public static boolean isTesting(){
+        return testing;
+    }
+
     public static IdentityKey getFakeKey() {
         return fakeKey;
     }
-
-
 
     //setters
 
@@ -81,6 +98,18 @@ public class IsMITMAttackOn {
         IsMITMAttackOn.safetyNumberChanged = isSafetyNumberChanged;
 
         prefEditor.putBoolean(safetyNumberBoolString, isSafetyNumberChanged);
+        prefEditor.apply();
+    }
+
+    public static void setIsWelcomeScreenAlreadyShown(boolean isWelcomeScreenAlreadyShown, Context context){
+
+        SharedPreferences sharedPref = context.getSharedPreferences(
+                "preferencesMITM", Context.MODE_PRIVATE);
+        SharedPreferences.Editor prefEditor = sharedPref.edit();
+
+        IsMITMAttackOn.welcomeScreenAlreadyShown = isWelcomeScreenAlreadyShown;
+
+        prefEditor.putBoolean(welcomeScreenBoolString, isWelcomeScreenAlreadyShown);
         prefEditor.apply();
     }
 }

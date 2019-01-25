@@ -6,6 +6,7 @@ import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -509,15 +510,4 @@ public class CreateProfileActivity extends BaseActionBarActivity implements Inje
     reveal.setVisibility(View.VISIBLE);
     animation.start();
   }
-
-  //Devon newWarn code starts
-  //Display Welcome Screen
-
-  @Override
-  public void finish() {
-    new WelcomeScreenDialog(this).show();
-    super.finish();
-  }
-
-  //Devon code ends
 }

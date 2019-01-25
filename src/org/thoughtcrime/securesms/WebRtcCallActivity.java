@@ -149,7 +149,9 @@ public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPr
             .findFragmentById(R.id.phone_call_privacy_check_fragment_container);
 
     if (privacyCheckFragment != null) {
-      profilePicture.setVisibility(View.VISIBLE);
+      if(!callScreen.isRemoteVideoEnabled()) {
+        profilePicture.setVisibility(View.VISIBLE);
+      }
       FragmentTransaction fragmentTransaction =
               fragmentManager.beginTransaction();
       fragmentTransaction.remove(privacyCheckFragment).commit();
@@ -169,6 +171,9 @@ public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPr
         String activityCaller = getIntent().getStringExtra(ACTIVITY_CALLER);
         if (activityCaller != null && activityCaller.equals(PrivacyCheckActivity.class.getSimpleName())){
           callScreen.setShieldButtonEnabled(true, verifiedStatus);
+        }
+        else{
+          callScreen.setShieldButtonEnabled(false, verifiedStatus);
         }
       }
 
@@ -195,9 +200,10 @@ public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPr
 
     PrivacyCheckSuccessDialog successDialog = new PrivacyCheckSuccessDialog(this, recipient.getName(), WebRtcCallActivity.class.getSimpleName());
     successDialog.setOnDismissListener((DialogInterface dialogInterface) -> {
-
+      IdentityUtil.markIdentityVerified(this, recipient, true, false);
     });
     successDialog.show();
+
   }
 
   //Devon newWarn comment: this function brought to you by the VerifyIdentityActivity.java
@@ -218,14 +224,10 @@ public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPr
     new PrivacyCheckFailureDialog(this, recipient.getName(),WebRtcCallActivity.class.getSimpleName(),
             new PrivacyCheckFailureDialog.PrivacyCheckFailureListener() {
               @Override
-              public void onMatchFailedTryAgainClicked() {
-
-              }
+              public void onMatchFailedTryAgainClicked() {}
 
               @Override
-              public void onMatchFailedImSureClicked() {
-
-              }
+              public void onMatchFailedImSureClicked() {}
             }).show();
   }
 
@@ -447,12 +449,7 @@ public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPr
       }
     });
 
-    callScreen.setCancelIdentityButton(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        handleTerminate(recipient);
-      }
-    });
+    callScreen.setCancelIdentityButton(v -> handleTerminate(recipient));
   }
 
   private void delayedFinish() {

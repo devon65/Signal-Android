@@ -413,7 +413,7 @@ public class ConversationFragment extends Fragment
     if (message.isIdentityMismatchFailure()) {
 
       List<IdentityKeyMismatch> mismatches = message.getIdentityKeyMismatches();
-      new PrivacyCheckGetStartedDialog(getActivity(), message, mismatches.get(0)).show();
+      new PrivacyCheckGetStartedDialog(getActivity(), mismatches.get(0)).show();
 
     } else {
       //Devon code ends

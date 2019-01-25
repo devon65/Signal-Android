@@ -87,11 +87,11 @@ public class PhoneCallPrivacyCheckFragment extends Fragment
                 //Changing the remoteIdentity that is fed into the fingerprint generator
                 //to fake a new "safety number"
 
-                /*IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
-                if (isMITMAttackOn.isSafetyNumberChanged()) {
+                IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
+                if (isMITMAttackOn.isSafetyNumberChanged() && !isMITMAttackOn.isTesting()) {
                     return new PrivacyCheckNumericFingerprintGenerator(5200).createFor(localNumber, localIdentity,
                             remoteNumber, isMITMAttackOn.getFakeKey());
-                }*/
+                }
 
                 //Devon code ends here
 

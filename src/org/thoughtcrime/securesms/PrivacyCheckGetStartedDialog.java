@@ -22,10 +22,11 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
 
     @SuppressWarnings("unused")
     private static final String TAG = PrivacyCheckGetStartedDialog.class.getSimpleName();
+    public static boolean isDialogShowingAlready = false;
 
-    private DialogInterface.OnClickListener callback;
 
-    public PrivacyCheckGetStartedDialog(Context context, MessageRecord messageRecord, IdentityKeyMismatch mismatch) {
+
+    public PrivacyCheckGetStartedDialog(Context context, IdentityKeyMismatch mismatch) {
         super(context);
 
         Recipient recipient = Recipient.from(context, mismatch.getAddress(), false);
@@ -36,13 +37,13 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
 
 
         setTitle(context.getString(R.string.privacy_check_get_started_dialog_title));
-        setIcon(R.drawable.ic_warning_light);
+        setIcon(R.drawable.ic_devon_privacy_check_very_unverified_dialog_shield);
         setMessage(dialogBody);
 
         setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_get_started_dialog_Get_Started),
-                new PrivacyCheckGetStartedDialog.AcceptListener(mismatch, messageRecord.isIdentityVerified()));
+                new PrivacyCheckGetStartedDialog.AcceptListener(mismatch));
         setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.privacy_check_get_started_dialog_Not_Now),
-                new PrivacyCheckGetStartedDialog.CancelListener(context, messageRecord, mismatch));
+                new PrivacyCheckGetStartedDialog.CancelListener(context, mismatch));
     }
 
     @Override
@@ -52,18 +53,12 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
                 .setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    public void setCallback(DialogInterface.OnClickListener callback) {
-        this.callback = callback;
-    }
-
     private class AcceptListener implements OnClickListener {
 
         private final IdentityKeyMismatch   mismatch;
-        private final Boolean               isVerified;
 
-        private AcceptListener(IdentityKeyMismatch mismatch, Boolean isVerified){
+        private AcceptListener(IdentityKeyMismatch mismatch){
             this.mismatch   = mismatch;
-            this.isVerified = isVerified;
         }
 
         @Override
@@ -72,8 +67,6 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
             Intent intent = new Intent(getContext(), PrivacyCheckActivity.class);
             intent.putExtra(PrivacyCheckActivity.ADDRESS_EXTRA, mismatch.getAddress());
             getContext().startActivity(intent);
-
-            if (callback != null) callback.onClick(null, 0);
         }
     }
 
@@ -81,20 +74,17 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
 
         private final Context              context;
         private final IdentityKeyMismatch  mismatch;
-        private final MessageRecord        messageRecord;
 
-        private CancelListener(Context context, MessageRecord messageRecord, IdentityKeyMismatch mismatch) {
+        private CancelListener(Context context, IdentityKeyMismatch mismatch) {
             this.context       = context;
             this.mismatch      = mismatch;
-            this.messageRecord = messageRecord;
         }
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
 
-            new PrivacyCheckRemindLaterDialog(context, messageRecord, mismatch).show();
+            new PrivacyCheckRemindLaterDialog(context, mismatch).show();
 
-            if (callback != null) callback.onClick(null, 0);
         }
     }
 

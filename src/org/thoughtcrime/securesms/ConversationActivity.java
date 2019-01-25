@@ -54,8 +54,10 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 
 import org.thoughtcrime.securesms.camera.CameraActivity;
+import org.thoughtcrime.securesms.crypto.storage.TextSecureIdentityKeyStore;
 import org.thoughtcrime.securesms.database.DatabaseContentProviders;
 import org.thoughtcrime.securesms.database.GroupDatabase;
+import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatch;
 import org.thoughtcrime.securesms.logging.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -183,6 +185,7 @@ import org.thoughtcrime.securesms.util.concurrent.SettableFuture;
 import org.thoughtcrime.securesms.util.views.Stub;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.InvalidMessageException;
+import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.util.guava.Optional;
 
 import java.io.IOException;
@@ -1071,6 +1074,26 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     startActivity(intent);
   }
 
+  //Devon newWarn code starts
+  //this function is replacing the handleUnverifiedRecipients()
+
+  private void newWarnHandleUnverifiedRecipients(){
+    IdentityRecord identityRecord = identityRecords.getIdentityRecordsList().get(0);
+    IdentityKeyMismatch mismatch = new IdentityKeyMismatch(identityRecord.getAddress(), identityRecord.getIdentityKey());
+    //new PrivacyCheckGetStartedDialog(this, mismatch).show();
+
+    synchronized (SESSION_LOCK) {
+      TextSecureIdentityKeyStore identityKeyStore = new TextSecureIdentityKeyStore(this);
+
+      for (IdentityRecord idRecord : identityRecords.getIdentityRecordsList()) {
+        identityKeyStore.saveIdentity(new SignalProtocolAddress(idRecord.getAddress().serialize(), 1), idRecord.getIdentityKey());
+      }
+    }
+    initializeIdentityRecords();
+  }
+
+  //Devon code ends
+
   private void handleUnverifiedRecipients() {
     List<Recipient>      unverifiedRecipients = identityRecords.getUnverifiedRecipients(this);
     List<IdentityRecord> unverifiedRecords    = identityRecords.getUnverifiedRecords();
@@ -1101,6 +1124,11 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
 
     if (untrustedMessage == null) return;
 
+    //Devon newWarn code starts: commenting out this dialog
+    //It pops up if a message is sent too fast after recognition
+    //of a key change (roughly 7 seconds after)
+    //and is not needed in our modified version
+    /*
     //noinspection CodeBlock2Expr
     new UntrustedSendDialog(this, untrustedMessage, untrustedRecords, () -> {
       initializeIdentityRecords().addListener(new ListenableFuture.Listener<Boolean>() {
@@ -1115,6 +1143,8 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
         }
       });
     }).show();
+    */
+    //Devon code ends
   }
 
   private void handleSecurityChange(boolean isSecureText, boolean isDefaultSms) {
@@ -1392,10 +1422,22 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
 
       @Override
       protected void onPostExecute(@NonNull Pair<IdentityRecordList, String> result) {
+
+
         Log.i(TAG, "Got identity records: " + result.first.isUnverified());
         identityRecords.replaceWith(result.first);
 
-        if (result.second != null) {
+        //Devon newWarn code starts
+        //commenting out blueBanner pop-up
+        //pop up PrivacyCheckGetStartedDialog instead of BlueBanner
+
+        if (result.first.isUnverified()) {
+          IdentityRecord identityRecord = result.first.getUnverifiedRecords().get(0);
+          IdentityKeyMismatch mismatch = new IdentityKeyMismatch(identityRecord.getAddress(), identityRecord.getIdentityKey());
+          new PrivacyCheckGetStartedDialog(ConversationActivity.this, mismatch).show();
+        }
+
+        /*if (result.second != null) {
           Log.d(TAG, "Replacing banner...");
           unverifiedBannerView.get().display(result.second, result.first.getUnverifiedRecords(),
                                              new UnverifiedClickedListener(),
@@ -1403,7 +1445,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
         } else if (unverifiedBannerView.resolved()) {
           Log.d(TAG, "Clearing banner...");
           unverifiedBannerView.get().hide();
-        }
+        }*/
 
         //Devon newWarn code starts
         //commenting out original next line which updates the "verified checkmark" next to the
@@ -1893,13 +1935,31 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       long       expiresIn      = recipient.getExpireMessages() * 1000L;
       boolean    initiating     = threadId == -1;
 
+      //Devon newWarn code starts
+      IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
+      //This will mark the contact as unverified if necessary before sending anything
+      //updateRecipientsVerifiedStatus();
+
+      //Devon code ends
+
       Log.i(TAG, "isManual Selection: " + sendButton.isManualSelection());
       Log.i(TAG, "forceSms: " + forceSms);
 
       if ((recipient.isMmsGroupRecipient() || recipient.getAddress().isEmail()) && !isMmsEnabled) {
         handleManualMmsRequired();
-      } else if (!forceSms && identityRecords.isUnverified()) {
-        handleUnverifiedRecipients();
+      }
+      //Devon newWarn code starts: commenting out current unverified conditional statement
+      // and adding MITM condition
+      // This is really a cheap way of activating the attack
+      // This will not activate the right code with a reinstall
+      /*else if (!forceSms && identityRecords.isUnverified()) {
+        handleUnverifiedRecipients();*/
+
+      else if (!forceSms && (identityRecords.isUnverified() || isMITMAttackOn.isAttackOn())) {
+        newWarnHandleUnverifiedRecipients();
+
+      //Devon code ends
+
       } else if (!forceSms && identityRecords.isUntrusted()) {
         handleUntrustedRecipients();
       } else if (attachmentManager.isAttachmentPresent() || recipient.isGroupRecipient() || recipient.getAddress().isEmail() || inputPanel.getQuote().isPresent()) {
@@ -1918,6 +1978,20 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       Log.w(TAG, ex);
     }
   }
+
+  //Devon newWarn code starts
+
+  private void updateRecipientsVerifiedStatus(){
+    synchronized (SESSION_LOCK) {
+      TextSecureIdentityKeyStore identityKeyStore = new TextSecureIdentityKeyStore(this);
+
+      for (IdentityRecord idRecord : identityRecords.getIdentityRecordsList()) {
+        identityKeyStore.saveIdentity(new SignalProtocolAddress(idRecord.getAddress().serialize(), 1), idRecord.getIdentityKey());
+      }
+    }
+  }
+
+  //Devon code ends
 
   private void sendMediaMessage(final boolean forceSms, final long expiresIn, final int subscriptionId, boolean initiating)
       throws InvalidMessageException

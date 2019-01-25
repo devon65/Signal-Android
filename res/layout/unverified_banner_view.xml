@@ -11,7 +11,7 @@
     android:orientation="horizontal"
     tools:visibility="visible">
 
-    <!-- Devon newWarn code starts -->
+    <!-- Devon newWarn code starts: one modification -->
     <!-- changed the icon from triangle warning to shield warning -->
     <ImageView android:layout_width="40dp"
                android:layout_height="match_parent"
@@ -20,6 +20,7 @@
                app:srcCompat="@drawable/ic_devon_header_very_unverified_shield"/>
                <!-- android:src="@drawable/ic_alert"/> -->
 
+    <!-- Devon newWarn code starts: one modification -->
     <!-- changed text source -->
     <TextView android:id="@+id/unverified_text"
               android:layout_width="0dp"
@@ -31,9 +32,8 @@
               android:text="@string/blue_banner_Signal_needs_your_help"/>
 
               <!--tools:text="Your safety number with Jules Bonnot has changed and is no longer verified"/> -->
-    <!-- Devon code ends -->
 
-    <ImageButton
+    <!-- <ImageButton
             android:id="@+id/cancel"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -43,6 +43,6 @@
             android:nextFocusLeft="@+id/container"
             android:nextFocusRight="@+id/container"
             android:src="@drawable/ic_close_white_24dp"
-            android:contentDescription="@string/InviteActivity_cancel"/>
+            android:contentDescription="@string/InviteActivity_cancel"/> -->
 
 </LinearLayout>

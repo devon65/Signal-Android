@@ -343,6 +343,12 @@ public class ConversationListFragment extends Fragment
       list.setVisibility(View.INVISIBLE);
       emptyState.setVisibility(View.VISIBLE);
       emptySearch.setVisibility(View.INVISIBLE);
+
+      //Devon newWarn code starts
+      //Display Welcome Screen
+      //new WelcomeScreenDialog(getContext()).showIfNecessary();
+      //Devon code ends
+
       fab.startPulse(3 * 1000);
     } else if ((cursor == null || cursor.getCount() <= 0) && !TextUtils.isEmpty(queryFilter)) {
       list.setVisibility(View.INVISIBLE);
