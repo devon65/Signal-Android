@@ -149,7 +149,7 @@ public class ConversationUpdateItem extends LinearLayout
     //Devon newWarn code starts
     //commenting out current shield to add new very unverified shield
     //icon.setImageResource(R.drawable.ic_security_white_24dp);
-    icon.setImageResource(R.drawable.ic_devon_privacy_check_very_unverified_dialog_shield);
+    icon.setImageResource(R.drawable.ic_devon_privacy_check_unverified_dialog_shield);
     //Devon code ends
 
     icon.setColorFilter(new PorterDuffColorFilter(Color.parseColor("#757575"), PorterDuff.Mode.MULTIPLY));
@@ -164,10 +164,12 @@ public class ConversationUpdateItem extends LinearLayout
 
     //Devon newWarn code starts
     //comment out next two lines and replacing check mark and info icons with shield equivalent
+    //added VeryUnverified messageRecord
     //if (messageRecord.isIdentityVerified()) icon.setImageResource(R.drawable.ic_check_white_24dp);
     //else                                    icon.setImageResource(R.drawable.ic_info_outline_white_24dp);
     if (messageRecord.isIdentityVerified()) icon.setImageResource(R.drawable.ic_devon_privacy_check_verified_dialog_shield);
-    else                                    icon.setImageResource(R.drawable.ic_devon_privacy_check_unverified_dialog_shield);
+    //else if (messageRecord.isIdentityVeryUnverified()) icon.setImageResource(R.drawable.ic_devon_privacy_check_very_unverified_dialog_shield);
+    else                                    icon.setImageResource(R.drawable.ic_devon_privacy_check_very_unverified_dialog_shield);
     //Devon code ends
 
     icon.setColorFilter(new PorterDuffColorFilter(Color.parseColor("#757575"), PorterDuff.Mode.MULTIPLY));

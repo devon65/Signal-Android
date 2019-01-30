@@ -23,6 +23,7 @@ import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
@@ -1005,18 +1006,28 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   private void handleDial(final Recipient recipient, boolean isSecure) {
     if (recipient == null) return;
 
-    if (isSecure) {
-      CommunicationActions.startVoiceCall(this, recipient);
-    } else {
-      try {
-        Intent dialIntent = new Intent(Intent.ACTION_DIAL,
-                                       Uri.parse("tel:" + recipient.getAddress().serialize()));
-        startActivity(dialIntent);
-      } catch (ActivityNotFoundException anfe) {
-        Log.w(TAG, anfe);
-        Dialogs.showAlertDialog(this,
-                                getString(R.string.ConversationActivity_calls_not_supported),
-                                getString(R.string.ConversationActivity_this_device_does_not_appear_to_support_dial_actions));
+    //Devon newWarn code starts
+    //redirecting call if state is unverified or if attack is on
+    IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
+    if(identityRecords.isUnverified() || isMITMAttackOn.isAttackOn()){
+      newWarnHandleUnverifiedRecipients();
+    }
+    else {
+    //Devon code ends
+
+      if (isSecure) {
+        CommunicationActions.startVoiceCall(this, recipient);
+      } else {
+        try {
+          Intent dialIntent = new Intent(Intent.ACTION_DIAL,
+                  Uri.parse("tel:" + recipient.getAddress().serialize()));
+          startActivity(dialIntent);
+        } catch (ActivityNotFoundException anfe) {
+          Log.w(TAG, anfe);
+          Dialogs.showAlertDialog(this,
+                  getString(R.string.ConversationActivity_calls_not_supported),
+                  getString(R.string.ConversationActivity_this_device_does_not_appear_to_support_dial_actions));
+        }
       }
     }
   }
@@ -1434,7 +1445,9 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
         if (result.first.isUnverified()) {
           IdentityRecord identityRecord = result.first.getUnverifiedRecords().get(0);
           IdentityKeyMismatch mismatch = new IdentityKeyMismatch(identityRecord.getAddress(), identityRecord.getIdentityKey());
-          new PrivacyCheckGetStartedDialog(ConversationActivity.this, mismatch).show();
+          PrivacyCheckGetStartedDialog getStartedDialog = new PrivacyCheckGetStartedDialog(ConversationActivity.this, mismatch);
+          getStartedDialog.setOnDismissListener(dialogInterface -> getStartedDialog.setIsDialogShowingAlready(false));
+          getStartedDialog.showIfNecessary();
         }
 
         /*if (result.second != null) {

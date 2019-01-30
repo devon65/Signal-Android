@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:textSize="16dp"
             android:textColor="@color/gray78"
-            android:text="@string/phone_call_screen_These_are_the_device_identifiers_for_you_and_s"
+            android:text="@string/phone_call_screen_shield_toggle_explanation"
             android:justificationMode="inter_word"/>
 
         <TextView

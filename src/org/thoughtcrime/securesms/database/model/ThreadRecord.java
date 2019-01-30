@@ -19,6 +19,7 @@ package org.thoughtcrime.securesms.database.model;
 
 import android.content.Context;
 import android.net.Uri;
+import android.provider.Telephony;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Spannable;
@@ -105,18 +106,24 @@ public class ThreadRecord extends DisplayRecord {
       String time = ExpirationUtil.getExpirationDisplayValue(context, seconds);
       return emphasisAdded(context.getString(R.string.ThreadRecord_disappearing_message_time_updated_to_s, time));
     } else if (SmsDatabase.Types.isIdentityUpdate(type)) {
-      if (getRecipient().isGroupRecipient()) return emphasisAdded(context.getString(R.string.ThreadRecord_safety_number_changed));
 
       //Devon newWarn code starts
-      //replacing the original wording of text-message warning with new wording
+      //replacing the original wording of text-message warnings on conversation list screen with new wording
+      //} else if (SmsDatabase.Types.isIdentityVerified(type)) {
+      //  return emphasisAdded(context.getString(R.string.ThreadRecord_you_marked_verified));
+      //} else if (SmsDatabase.Types.isIdentityDefault(type)) {
+      //  return emphasisAdded(context.getString(R.string.ThreadRecord_you_marked_unverified));
+      //if (getRecipient().isGroupRecipient()) return emphasisAdded(context.getString(R.string.ThreadRecord_safety_number_changed));
       //else                                   return emphasisAdded(context.getString(R.string.ThreadRecord_your_safety_number_with_s_has_changed, getRecipient().toShortString()));
-      else                                   return emphasisAdded(context.getString(R.string.text_message_indicator_Signal_recommends_a_privacy_check));
+
+      return emphasisAdded(context.getString(R.string.text_message_indicator_Signal_recommends_a_privacy_check));
+    } else if (SmsDatabase.Types.isIdentityVerified(type)) {
+      return emphasisAdded(context.getString(R.string.text_message_indicator_You_marked_s_as_verified, getRecipient().toShortString()));
+    } else if (SmsDatabase.Types.isIdentityDefault(type)) {
+      return emphasisAdded(context.getString(R.string.text_message_indicator_You_marked_s_as_unverified, getRecipient().toShortString()));
+
       //Devon code ends
 
-    } else if (SmsDatabase.Types.isIdentityVerified(type)) {
-      return emphasisAdded(context.getString(R.string.ThreadRecord_you_marked_verified));
-    } else if (SmsDatabase.Types.isIdentityDefault(type)) {
-      return emphasisAdded(context.getString(R.string.ThreadRecord_you_marked_unverified));
     } else {
       if (TextUtils.isEmpty(getBody())) {
         return new SpannableString(emphasisAdded(context.getString(R.string.ThreadRecord_media_message)));

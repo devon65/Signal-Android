@@ -176,6 +176,7 @@ public class PrivacyCheckActivity extends AppCompatActivity
                                     updatedVerifiedStatus);
 
                     if (markVerifiedStatusChange) {
+
                         IdentityUtil.markIdentityVerified(context, recipient, updatedVerifiedStatus == IdentityDatabase.VerifiedStatus.VERIFIED, false);
                     }
 

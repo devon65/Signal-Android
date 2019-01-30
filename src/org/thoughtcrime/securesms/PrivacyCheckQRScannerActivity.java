@@ -248,6 +248,7 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
                                     remoteIdentity,
                                     VerifiedStatus.VERIFIED, false,
                                     System.currentTimeMillis(), true);
+                    IdentityUtil.markIdentityVerified(getContext(), recipient, true, false);
 
                     animateVerifiedSuccess();
 
@@ -256,7 +257,6 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
 
                     PrivacyCheckSuccessDialog successDialog = new PrivacyCheckSuccessDialog(getContext(), recipient.getName(), PrivacyCheckQRScannerActivity.class.getSimpleName());
                     successDialog.setOnDismissListener(dialogInterface -> {
-                        IdentityUtil.markIdentityVerified(getContext(), recipient, true, false);
                         onResume();
                     });
                     successDialog.show();
@@ -276,6 +276,7 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
                                     remoteIdentity,
                                     VerifiedStatus.VERYUNVERIFIED, false,
                                     System.currentTimeMillis(), true);
+                    IdentityUtil.markIdentityVerified(getContext(), recipient, false, false);
 
                     //Devon code ends
 

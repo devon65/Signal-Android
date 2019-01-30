@@ -88,7 +88,7 @@ public class PrivacyCheckVerifiedFragment extends Fragment {
         resetPrivacyStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mListener.changeVerifiedStatus(IdentityDatabase.VerifiedStatus.DEFAULT, true);
+                mListener.changeVerifiedStatus(IdentityDatabase.VerifiedStatus.DEFAULT, false);
                 mListener.switchToUnverifiedFragment();
             }
         });

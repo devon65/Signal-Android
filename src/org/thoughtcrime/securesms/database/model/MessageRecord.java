@@ -126,19 +126,17 @@ public abstract class MessageRecord extends DisplayRecord {
       //Devon newWarn code starts
       //changing wording of in-text message of marked as verified
       //if (isOutgoing()) return new SpannableString(context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_verified, getIndividualRecipient().toShortString()));
-      if (isOutgoing()) return new SpannableString(context.getString(R.string.text_message_indicator_You_marked_s_as_verified, getIndividualRecipient().toShortString()));
-      //Devon code ends
-
-      else              return new SpannableString(context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_verified_from_another_device, getIndividualRecipient().toShortString()));
+      //else              return new SpannableString(context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_verified_from_another_device, getIndividualRecipient().toShortString()));
+      return new SpannableString(context.getString(R.string.text_message_indicator_You_marked_s_as_verified, getIndividualRecipient().toShortString()));
     } else if (isIdentityDefault()) {
 
       //Devon newWarn code starts
       //changing wording of in-text message of marked as unverified
       //if (isOutgoing()) return new SpannableString(context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_unverified, getIndividualRecipient().toShortString()));
-      if (isOutgoing()) return new SpannableString(context.getString(R.string.text_message_indicator_You_marked_s_as_unverified, getIndividualRecipient().toShortString()));
+      //else              return new SpannableString(context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_unverified_from_another_device, getIndividualRecipient().toShortString()));
+      return new SpannableString(context.getString(R.string.text_message_indicator_You_marked_s_as_unverified, getIndividualRecipient().toShortString()));
       //Devon code ends
 
-      else              return new SpannableString(context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_unverified_from_another_device, getIndividualRecipient().toShortString()));
     } else if (getBody().length() > MAX_DISPLAY_LENGTH) {
       return new SpannableString(getBody().substring(0, MAX_DISPLAY_LENGTH));
     }

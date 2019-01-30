@@ -37,7 +37,7 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
 
 
         setTitle(context.getString(R.string.privacy_check_get_started_dialog_title));
-        setIcon(R.drawable.ic_devon_privacy_check_very_unverified_dialog_shield);
+        setIcon(R.drawable.ic_devon_privacy_check_unverified_dialog_shield);
         setMessage(dialogBody);
 
         setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.privacy_check_get_started_dialog_Get_Started),
@@ -51,6 +51,17 @@ public class PrivacyCheckGetStartedDialog extends AlertDialog {
         super.show();
         ((TextView) this.findViewById(android.R.id.message))
                 .setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    public void showIfNecessary() {
+        if(!isDialogShowingAlready) {
+            show();
+            isDialogShowingAlready = true;
+        }
+    }
+
+    public void setIsDialogShowingAlready(boolean dialogAlreadyShowing){
+        isDialogShowingAlready = dialogAlreadyShowing;
     }
 
     private class AcceptListener implements OnClickListener {

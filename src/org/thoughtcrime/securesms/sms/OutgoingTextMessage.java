@@ -68,6 +68,13 @@ public class OutgoingTextMessage {
     return false;
   }
 
+  //Devon newWarn code starts
+  //this boolean is used to determine if the message is VeryUnverified
+  public boolean isIdentityVeryUnverified(){
+    return false;
+  }
+  //Devon newWarn code ends
+
   public static OutgoingTextMessage from(SmsMessageRecord record) {
     if (record.isSecure()) {
       return new OutgoingEncryptedMessage(record.getRecipient(), record.getBody(), record.getExpiresIn());

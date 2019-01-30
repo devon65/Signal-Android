@@ -1530,6 +1530,7 @@
 
     <!-- privacy check phone call -->
     <string name="phone_call_screen_Privacy_Check">Privacy Check</string>
+    <string name="phone_call_screen_shield_toggle_explanation">Tap the shield icon to show and hide your device identifiers.</string>
     <string name="phone_call_screen_These_are_the_device_identifiers_for_you_and_s">These are the device identifiers for you and %s.</string>
     <string name="phone_call_screen_Have_s_read_their_identifier_to_you">Have %s read their identifier to you, and check if it matches your copy. Do the same for %s with yours.</string>
     <string name="phone_call_screen_Your_device_identifier">Your device identifier:</string>
@@ -1551,8 +1552,9 @@
 
     <!-- Text message indicators -->
     <string name="text_message_indicator_Signal_recommends_a_privacy_check">Signal recommends you perform a privacy check</string>
-    <string name="text_message_indicator_You_marked_s_as_verified">You completed the privacy check for %s</string>
-    <string name="text_message_indicator_You_marked_s_as_unverified">You reset the privacy check status for %s</string>
+    <string name="text_message_indicator_You_marked_s_as_verified">You marked %s\'s device identifiers as matching yours.</string>
+    <string name="text_message_indicator_You_reset_the_privacy_check_status">You reset the privacy check status for %s</string>
+    <string name="text_message_indicator_You_marked_s_as_unverified">You marked %s\'s device identifiers as NOT matching yours.</string>
 
     <!-- icon titles -->
     <string name="conversation_shield_menu">Shield Icon</string>

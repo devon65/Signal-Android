@@ -141,6 +141,7 @@ public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPr
     getSupportFragmentManager().beginTransaction()
             .replace(R.id.phone_call_privacy_check_fragment_container, privacyCheckFrag)
             .commit();
+    callScreen.setShieldButtonEnabled(true, verifiedStatus);
   }
 
   private void hideDeviceIdentifiers(){
@@ -156,6 +157,7 @@ public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPr
               fragmentManager.beginTransaction();
       fragmentTransaction.remove(privacyCheckFragment).commit();
     }
+    callScreen.setShieldButtonEnabled(false, verifiedStatus);
   }
 
   private void setUpShieldButton(){
@@ -193,14 +195,15 @@ public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPr
                     remoteIdentityKey,
                     IdentityDatabase.VerifiedStatus.VERIFIED, false,
                     System.currentTimeMillis(), true);
+    IdentityUtil.markIdentityVerified(this, recipient, true, false);
 
     //animateVerifiedSuccess();
     verifiedStatus = IdentityDatabase.VerifiedStatus.VERIFIED.toInt();
     this.callScreen.setShieldButtonEnabled(true, verifiedStatus);
 
     PrivacyCheckSuccessDialog successDialog = new PrivacyCheckSuccessDialog(this, recipient.getName(), WebRtcCallActivity.class.getSimpleName());
-    successDialog.setOnDismissListener((DialogInterface dialogInterface) -> {
-      IdentityUtil.markIdentityVerified(this, recipient, true, false);
+    successDialog.setOnDismissListener(dialogInterface -> {
+      WebRtcCallActivity.this.hideDeviceIdentifiers();
     });
     successDialog.show();
 
@@ -218,7 +221,8 @@ public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPr
 
     //animateVerifiedFailure();
     verifiedStatus = IdentityDatabase.VerifiedStatus.VERYUNVERIFIED.toInt();
-    WebRtcCallActivity.this.callScreen.setShieldButtonEnabled(true, verifiedStatus);
+    this.callScreen.setShieldButtonEnabled(true, verifiedStatus);
+    IdentityUtil.markIdentityVerified(this, recipient, false, false);
 
     //displaying the PrivacyCheckFailureDialog
     new PrivacyCheckFailureDialog(this, recipient.getName(),WebRtcCallActivity.class.getSimpleName(),
@@ -227,7 +231,9 @@ public class WebRtcCallActivity extends AppCompatActivity implements PhoneCallPr
               public void onMatchFailedTryAgainClicked() {}
 
               @Override
-              public void onMatchFailedImSureClicked() {}
+              public void onMatchFailedImSureClicked() {
+                  WebRtcCallActivity.this.hideDeviceIdentifiers();
+              }
             }).show();
   }
 

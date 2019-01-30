@@ -143,7 +143,7 @@ public class PhoneCallPrivacyCheckFragment extends Fragment
         ImageView matchButton       = ViewUtil.findById(container, R.id.phone_call_match_button);
         ImageView noMatchButton     = ViewUtil.findById(container, R.id.phone_call_no_match_button);
 
-        theseAreTheyText.setText(String.format(getContext().getString(R.string.phone_call_screen_These_are_the_device_identifiers_for_you_and_s), recipientName));
+        theseAreTheyText.setText(String.format(getContext().getString(R.string.phone_call_screen_shield_toggle_explanation)));
         haveFriendReadText.setText(String.format(getContext().getString(R.string.phone_call_screen_Have_s_read_their_identifier_to_you), recipientName, recipientName));
         friendIdTitle.setText(String.format(getContext().getString(R.string.phone_call_screen_s_device_identifier), recipientName));
 

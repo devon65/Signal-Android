@@ -9,6 +9,7 @@ import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 
 import org.thoughtcrime.securesms.IsMITMAttackOn;
+import org.thoughtcrime.securesms.OutgoingIdentityVeryUnverifiedMessage;
 import org.thoughtcrime.securesms.logging.Log;
 
 import org.thoughtcrime.securesms.R;
@@ -200,6 +201,8 @@ public class IdentityUtil {
               identityRecord.get().getVerifiedStatus() != IdentityDatabase.VerifiedStatus.DEFAULT)
       {
         identityDatabase.setVerified(recipient.getAddress(), identityRecord.get().getIdentityKey(), IdentityDatabase.VerifiedStatus.DEFAULT);
+
+        //Devon newWarn code edit: added veryUnverified boolean
         markIdentityVerified(context, recipient, false, true);
       }
 
@@ -214,6 +217,7 @@ public class IdentityUtil {
       {
         saveIdentity(context, verifiedMessage.getDestination(), verifiedMessage.getIdentityKey());
         identityDatabase.setVerified(recipient.getAddress(), verifiedMessage.getIdentityKey(), IdentityDatabase.VerifiedStatus.VERIFIED);
+
         markIdentityVerified(context, recipient, true, true);
       }
     }
