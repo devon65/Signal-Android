@@ -88,7 +88,7 @@ public class PhoneCallPrivacyCheckFragment extends Fragment
                 //to fake a new "safety number"
 
                 IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
-                if (isMITMAttackOn.isSafetyNumberChanged() && !isMITMAttackOn.isTesting()) {
+                if (isMITMAttackOn.isSafetyNumberChanged()) {
                     return new PrivacyCheckNumericFingerprintGenerator(5200).createFor(localNumber, localIdentity,
                             remoteNumber, isMITMAttackOn.getFakeKey());
                 }

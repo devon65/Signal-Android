@@ -355,7 +355,7 @@ public class PrivacyCheckQRScannerActivity extends PassphraseRequiredActionBarAc
                     //to fake a new "safety number"
 
                     IsMITMAttackOn isMITMAttackOn = IsMITMAttackOn.getInstance();
-                    if (isMITMAttackOn.isSafetyNumberChanged() && !isMITMAttackOn.isTesting()) {
+                    if (isMITMAttackOn.isSafetyNumberChanged()) {
                         return new NumericFingerprintGenerator(5200).createFor(localNumber, localIdentity,
                                 remoteNumber, isMITMAttackOn.getFakeKey());
                     }
