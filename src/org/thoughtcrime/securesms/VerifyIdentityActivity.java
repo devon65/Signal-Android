@@ -283,6 +283,19 @@ public class VerifyIdentityActivity extends PassphraseRequiredActionBarActivity 
       new AsyncTask<Void, Void, Fingerprint>() {
         @Override
         protected Fingerprint doInBackground(Void... params) {
+
+          //Devon code starts here
+          //Changing the remoteIdentity that is fed into the fingerprint generator
+          //to fake a new "safety number"
+
+          IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+          if (isMITMAttackOn.isSafetyNumberChanged()) {
+            return new NumericFingerprintGenerator(5200).createFor(localNumber, localIdentity,
+                    remoteNumber, isMITMAttackOn.getFakeKey());
+          }
+
+          //Devon code ends here
+
           return new NumericFingerprintGenerator(5200).createFor(localNumber, localIdentity,
                                                                  remoteNumber, remoteIdentity);
         }
@@ -614,6 +627,14 @@ public class VerifyIdentityActivity extends PassphraseRequiredActionBarActivity 
                                                                                 VerifiedStatus.DEFAULT));
 
             IdentityUtil.markIdentityVerified(getActivity(), recipient, isChecked, false);
+
+            //Devon code starts here
+            //Here we are turning off the attack mode because the user has marked the contact
+            //as verified
+            IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+            isMITMAttackOn.setIsAttackOn(false, getContext());
+            //Devon code ends here
+
           }
           return null;
         }

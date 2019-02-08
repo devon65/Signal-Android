@@ -7,7 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
-
+import org.thoughtcrime.securesms.IsMITMAttackOn;
+import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.crypto.storage.TextSecureIdentityKeyStore;
 import org.thoughtcrime.securesms.crypto.storage.TextSecureSessionStore;
@@ -146,6 +147,13 @@ public class IdentityUtil {
     if (insertResult.isPresent()) {
       MessageNotifier.updateNotification(context, insertResult.get().getThreadId());
     }
+
+    //Devon code starts here
+    //Here we are marking that the text message warning has been sent
+    IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+    isMITMAttackOn.setIsAttackOn(false, context);
+    //isMITMAttackOn.setIsTextSent(true);
+    //Devon code ends here
   }
 
   public static void saveIdentity(Context context, String number, IdentityKey identityKey) {
@@ -176,19 +184,32 @@ public class IdentityUtil {
         return;
       }
 
+      //Devon code starts here
+      //
+      IsMITMAttackOn isMITMAttackOn = new IsMITMAttackOn();
+      //Devon code ends here
+
       if (verifiedMessage.getVerified() == VerifiedMessage.VerifiedState.DEFAULT              &&
-          identityRecord.isPresent()                                                          &&
-          identityRecord.get().getIdentityKey().equals(verifiedMessage.getIdentityKey())      &&
-          identityRecord.get().getVerifiedStatus() != IdentityDatabase.VerifiedStatus.DEFAULT)
+              identityRecord.isPresent()                                                          &&
+              identityRecord.get().getIdentityKey().equals(verifiedMessage.getIdentityKey())      &&
+              //Devon code starts here
+              //we want the next if statement if attack is on, so this needs to be false
+              !isMITMAttackOn.isAttackOn()                                                    &&
+              //Devon code ends here
+              identityRecord.get().getVerifiedStatus() != IdentityDatabase.VerifiedStatus.DEFAULT)
       {
         identityDatabase.setVerified(recipient.getAddress(), identityRecord.get().getIdentityKey(), IdentityDatabase.VerifiedStatus.DEFAULT);
         markIdentityVerified(context, recipient, false, true);
       }
 
       if (verifiedMessage.getVerified() == VerifiedMessage.VerifiedState.VERIFIED &&
-          (!identityRecord.isPresent() ||
-              (identityRecord.isPresent() && !identityRecord.get().getIdentityKey().equals(verifiedMessage.getIdentityKey())) ||
-              (identityRecord.isPresent() && identityRecord.get().getVerifiedStatus() != IdentityDatabase.VerifiedStatus.VERIFIED)))
+              (!identityRecord.isPresent() ||
+                      (identityRecord.isPresent() && !identityRecord.get().getIdentityKey().equals(verifiedMessage.getIdentityKey())) ||
+                      //Devon code starts here
+                      //
+                      (isMITMAttackOn.isAttackOn()) ||
+                      //Devon code ends here
+                      (identityRecord.isPresent() && identityRecord.get().getVerifiedStatus() != IdentityDatabase.VerifiedStatus.VERIFIED)))
       {
         saveIdentity(context, verifiedMessage.getDestination(), verifiedMessage.getIdentityKey());
         identityDatabase.setVerified(recipient.getAddress(), verifiedMessage.getIdentityKey(), IdentityDatabase.VerifiedStatus.VERIFIED);
