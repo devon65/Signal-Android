@@ -100,14 +100,6 @@
     <uses-permission android:name="android.permission.RAISED_THREAD_PRIORITY" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-    <application android:name=".ApplicationContext"
-                 android:icon="@mipmap/ic_launcher"
-                 android:label="@string/app_name"
-                 android:supportsRtl="true"
-                 tools:replace="android:allowBackup"
-                 android:allowBackup="false"
-                 android:theme="@style/TextSecure.LightTheme"
-                 android:largeHeap="true">
     <permission
         android:name="org.thoughtcrime.securesms.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
@@ -137,12 +129,6 @@
     <meta-data android:name="firebase_messaging_auto_init_enabled" android:value="false" />
     <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
 
-    <activity android:name="org.thoughtcrime.securesms.WebRtcCallActivity"
-              android:excludeFromRecents="true"
-              android:screenOrientation="portrait"
-              android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|fontScale"
-              android:launchMode="singleTask"/>
-
     <activity android:name=".CountrySelectionActivity"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 
@@ -157,6 +143,7 @@
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
+    </activity>
 
         <activity
             android:name=".WebRtcCallActivity"
@@ -164,19 +151,6 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".CountrySelectionActivity"
-            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize" />
-        <activity
-            android:name=".InviteActivity"
-            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
-            android:parentActivityName=".ConversationListActivity"
-            android:theme="@style/TextSecure.HighlightTheme"
-            android:windowSoftInputMode="stateHidden">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.thoughtcrime.securesms.ConversationListActivity" />
-        </activity>
         <activity
             android:name=".PromptMmsActivity"
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
@@ -413,10 +387,10 @@
     </activity>
 
     <activity android:name="org.thoughtcrime.securesms.webrtc.VoiceCallShare"
-              android:excludeFromRecents="true"
-              android:theme="@style/NoAnimation.Theme.BlackScreen"
-              android:launchMode="singleTask"
-              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize">
+        android:excludeFromRecents="true"
+        android:theme="@style/NoAnimation.Theme.BlackScreen"
+        android:launchMode="singleTask"
+        android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize">
 
         <intent-filter>
             <action android:name="android.intent.action.VIEW" />
