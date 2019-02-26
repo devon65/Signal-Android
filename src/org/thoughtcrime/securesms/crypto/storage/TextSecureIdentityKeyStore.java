@@ -119,6 +119,17 @@ public class TextSecureIdentityKeyStore implements IdentityKeyStore {
     }
   }
 
+  @Override
+  public IdentityKey getIdentity(SignalProtocolAddress address) {
+    Optional<IdentityRecord> record = DatabaseFactory.getIdentityDatabase(context).getIdentity(Address.fromSerialized(address.getName()));
+
+    if (record.isPresent()) {
+      return record.get().getIdentityKey();
+    } else {
+      return null;
+    }
+  }
+
   private boolean isTrustedForSending(IdentityKey identityKey, Optional<IdentityRecord> identityRecord) {
 
     //Devon code starts here
